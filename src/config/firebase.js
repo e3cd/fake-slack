@@ -6,7 +6,7 @@ import "firebase/storage";
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_apiKey,
   authDomain: process.env.REACT_APP_authDomain,
-  databaseURL: "https://react-slack-b3862.firebaseio.com",
+  databaseURL: "https://fake-slack.firebaseio.com",
   projectId: process.env.REACT_APP_projectId,
   storageBucket: process.env.REACT_APP_storageBucket,
   messagingSenderId: process.env.REACT_APP_messagingSenderId,

@@ -39,8 +39,10 @@ body {
 }
 
 .form__register-avatar {
-  margin: 1rem;
+  margin: 1rem 1rem;
   background-color: #17c6cc;
+  height: 2rem;
+  width: 2rem;
 }
 
 .form__button {
