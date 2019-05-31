@@ -1,0 +1,48 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+body {
+  box-sizing: border-box;
+  padding: none;
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  line-height: 1.6;
+  background-size: cover;
+  background: rgb(156, 156, 156);
+
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+/* Form */
+
+.form__container {
+  margin-top: 6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form__body {
+  margin-top: 2rem;
+  display: "flex";
+  flex-direction: "column";
+  align-items: "center";
+}
+
+.form__register-avatar {
+  margin: 1rem;
+  background-color: #17c6cc;
+}
+
+.form__button {
+  margin-top: 4rem;
+}
