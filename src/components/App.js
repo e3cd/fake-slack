@@ -1,23 +1,24 @@
-import React, { Component } from "react";
+import React from "react";
 import Home from "./Home";
 import Login from "./authentication/Login";
-import Register from "./authentication/Register";
-import { Route, Switch, withRouter } from "react-router-dom";
+import ForgotPassword from "./authentication/ForgotPassword";
+import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
+import firebase, { FirebaseContext } from "./../firebase";
 
-// import "./App.css";
+import "./App.css";
 
-class App extends Component {
-  render() {
-    return (
-      <div>
-        <Switch>
-          <Route path="/" exact component={Home} />
-          <Route path="/login" exact component={Login} />
-          <Route path="/register" exact component={Register} />
-        </Switch>
-      </div>
-    );
-  }
+export default function App() {
+  return (
+    <BrowserRouter>
+      <FirebaseContext.Provider value={{ firebase }}>
+        <div className="route-container">
+          <Switch>
+            <Route exact path="/" exact component={Home} />
+            <Route path="/login" exact component={Login} />
+            <Route path="/forgot" exact component={ForgotPassword} />
+          </Switch>
+        </div>
+      </FirebaseContext.Provider>
+    </BrowserRouter>
+  );
 }
-
-export default App;

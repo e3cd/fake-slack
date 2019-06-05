@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import firebase from "./../../config/firebase";
+import React, { useState } from "react";
+// import firebase from "../../firebase/firebase";
 import { Link } from "react-router-dom";
-
+import md5 from "md5";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -15,138 +15,97 @@ import Container from "@material-ui/core/Container";
 
 import "./../App.css";
 
-class Login extends Component {
-  state = {
-    email: "",
-    password: "",
-    errors: [],
-    isLoading: false
-  };
+function Login(props) {
+  const [login, setLogin] = useState(true);
+  const [firebaseError, setFirebaseError] = useState(null);
 
-  handleChange = event => {
-    this.setState({
-      [event.target.name]: event.target.value,
-      errors: []
-    });
-  };
-
-  renderInputError = (errors, inputName) => {
-    return errors.some(error => error.message.toLowerCase().includes(inputName))
-      ? true
-      : false;
-  };
-
-  displayFormErrors = (errors, inputName) =>
-    errors.map((error, index) => {
-      return error.message.toLowerCase().includes(inputName) ? (
-        <p key={index}>{error.message}</p>
-      ) : (
-        inputName
-      );
-    });
-
-  handleSubmit = event => {
-    event.preventDefault();
-    if (this.isFormValid()) {
-      this.setState({ errors: [], isLoading: true });
-      console.log("sent");
-    }
-  };
-
-  render() {
-    const {
-      email,
-      password,
-
-      errors,
-      isLoading
-    } = this.state;
-    return (
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <div className="form__container">
-          <Avatar
-            style={{
-              backgroundColor: "#17c6cc",
-              margin: "1rem 1rem",
-              width: "4rem",
-              height: "4rem"
-            }}
-          >
-            <HowToRegIcon style={{ width: "2rem", height: "2rem" }} />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Login to FakeSlack
-          </Typography>
-          <form
-            className="form__body"
-            validate="true"
-            onSubmit={this.handleSubmit}
-          >
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  variant="standard"
-                  required
-                  fullWidth
-                  type="email"
-                  id="email"
-                  onChange={this.handleChange}
-                  label={
-                    errors.length > 0
-                      ? this.displayFormErrors(errors, "email")
-                      : "Email Address"
-                  }
-                  name="email"
-                  autoComplete="email"
-                  error={this.renderInputError(errors, "email")}
-                  autoFocus
-                  value={email}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  variant="standard"
-                  required
-                  fullWidth
-                  name="password"
-                  label={
-                    errors.length > 0
-                      ? this.displayFormErrors(errors, "password")
-                      : "Password"
-                  }
-                  type="password"
-                  id="password"
-                  onChange={this.handleChange}
-                  error={this.renderInputError(errors, "password")}
-                  value={password}
-                />
-              </Grid>
+  return (
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <div className="form__container">
+        <Avatar
+          style={{
+            backgroundColor: "#17c6cc",
+            margin: "1rem 1rem",
+            width: "4rem",
+            height: "4rem"
+          }}
+        >
+          <HowToRegIcon style={{ width: "2rem", height: "2rem" }} />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Register Account
+        </Typography>
+        <form className="form__body" validate="true">
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                autoComplete="fname"
+                name="username"
+                variant="standard"
+                required
+                fullWidth
+                type="text"
+                id="userName"
+                autoFocus
+              />
             </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              style={{ marginTop: "2rem", backgroundColor: "#17c6cc" }}
-              disabled={isLoading}
-              size="large"
-            >
-              {isLoading ? <CircularProgress size={26} /> : "Login"}
-            </Button>
-            <Grid container justify="flex-end">
-              <Grid item style={{ marginTop: "2rem" }}>
-                <Link to="/Register" variant="body2">
-                  Don't have an account? Register
-                </Link>
-              </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                variant="standard"
+                required
+                fullWidth
+                type="email"
+                id="email"
+                name="email"
+                autoComplete="email"
+                autoFocus
+              />
             </Grid>
-          </form>
-        </div>
-      </Container>
-    );
-  }
+
+            <Grid item xs={12}>
+              <TextField
+                variant="standard"
+                required
+                fullWidth
+                name="password"
+                type="password"
+                id="password"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="standard"
+                required
+                fullWidth
+                name="passwordConfirmation"
+                type="password"
+                id="passwordConfirmation"
+              />
+            </Grid>
+          </Grid>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            style={{ marginTop: "2rem", backgroundColor: "#17c6cc" }}
+            size="large"
+          >
+            Submit
+          </Button>
+          <Grid container justify="flex-end">
+            <Grid item style={{ marginTop: "2rem" }}>
+              <Link to="/login" variant="body2">
+                Already have an account? Sign in
+              </Link>
+            </Grid>
+          </Grid>
+        </form>
+      </div>
+    </Container>
+  );
 }
 
 export default Login;
