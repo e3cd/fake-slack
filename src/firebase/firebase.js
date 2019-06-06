@@ -2,6 +2,7 @@ import app from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
 import "firebase/storage";
+import md5 from "md5";
 
 import firebaseConfig from "./config";
 
@@ -15,14 +16,21 @@ class Firebase {
     this.storage = app.storage();
   }
 
-  async register(name, email, password) {
+  async register(username, email, password) {
     const newUser = await this.auth.createUserWithEmailAndPassword(
       email,
       password
     );
-    return await newUser.user.updateProfile({
-      displayName: name
-    });
+    return await newUser.user
+      .updateProfile({
+        displayName: username,
+        photoURL: `http://gravatar.com/avatar/${md5(
+          newUser.user.email
+        )}?d=identicon`
+      })
+      .then(() => {
+        console.log(newUser);
+      });
   }
 
   async login(email, password) {

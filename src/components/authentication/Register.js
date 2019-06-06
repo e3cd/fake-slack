@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import validateLogin from "./validateLogin";
+import validateRegister from "./validateRegister";
 import useFormValidation from "./../hooks/useFormValidation";
 
 import Avatar from "@material-ui/core/Avatar";
@@ -8,7 +8,6 @@ import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
-import ChatIcon from "@material-ui/icons/Chat";
 import HowToRegIcon from "@material-ui/icons/HowToReg";
 import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -33,24 +32,26 @@ function Login(props) {
 
     handleSubmit,
     handleChange
-  } = useFormValidation(INITIAL_STATE, validateLogin, authenticateUser);
+  } = useFormValidation(INITIAL_STATE, validateRegister, authenticateUser);
+
   const [submitting, setSubmitting] = useState(false);
-  const [firebaseError, setFirebaseError] = useState(null);
 
   async function authenticateUser() {
-    const { email, password } = values;
+    const { username, email, password } = values;
 
     try {
       setSubmitting(true);
-      await firebase.login(email, password);
+      await firebase.register(username, email, password);
       setSubmitting(false);
       props.history.push("/");
     } catch (error) {
       console.error("authentication error", error);
-      setFirebaseError(error.message);
+
       setSubmitting(false);
     }
   }
+
+  console.log(errors);
 
   return (
     <Container component="main" maxWidth="xs">
@@ -64,13 +65,30 @@ function Login(props) {
             height: "4rem"
           }}
         >
-          <ChatIcon style={{ width: "2rem", height: "2rem" }} />
+          <HowToRegIcon style={{ width: "2rem", height: "2rem" }} />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Login to FakeSlack
+          Create an account
         </Typography>
         <form className="form__body" validate="true" onSubmit={handleSubmit}>
           <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                autoComplete="off"
+                name="username"
+                variant="standard"
+                required
+                fullWidth
+                type="text"
+                id="userName"
+                autoFocus
+                label={errors.username ? errors.username : "Username"}
+                error={errors.username ? true : false}
+                onChange={handleChange}
+                values={values.username}
+              />
+            </Grid>
+
             <Grid item xs={12}>
               <TextField
                 variant="standard"
@@ -101,14 +119,26 @@ function Login(props) {
                 error={errors.password ? true : false}
               />
             </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                variant="standard"
+                required
+                fullWidth
+                name="passwordConfirm"
+                type="password"
+                id="passwordConfirm"
+                label={
+                  errors.passwordConfirm
+                    ? errors.passwordConfirm
+                    : "Confirm password"
+                }
+                onChange={handleChange}
+                values={values.passwordConfirm}
+                error={errors.passwordConfirm ? true : false}
+              />
+            </Grid>
           </Grid>
-
-          {firebaseError && (
-            <Typography color="error" style={{ marginTop: "2rem" }}>
-              {firebaseError}
-            </Typography>
-          )}
-
           <Button
             type="submit"
             fullWidth
@@ -118,13 +148,13 @@ function Login(props) {
             size="large"
             disabled={submitting}
           >
-            {submitting ? <CircularProgress size={26} /> : "Login"}
+            {submitting ? <CircularProgress size={26} /> : "Register"}
           </Button>
 
           <Grid container justify="flex-start">
             <Grid item style={{ marginTop: "2rem" }}>
-              <Link to="/register" style={{ textDecoration: "none" }}>
-                <Button fullWidth>Don't have an account?</Button>
+              <Link to="/login" style={{ textDecoration: "none" }}>
+                <Button fullWidth>Already have an account?</Button>
               </Link>
             </Grid>
           </Grid>
