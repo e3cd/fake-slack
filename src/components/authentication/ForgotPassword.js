@@ -37,7 +37,7 @@ export default function ForgotPassword() {
 
   //   console.log(resetPasswordEmail);
   //   console.log(isPasswordReset);
-  //   console.log(passwordResetError);
+  console.log(passwordResetError);
 
   return (
     <Container component="main" maxWidth="xs">

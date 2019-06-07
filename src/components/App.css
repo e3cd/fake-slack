@@ -37,7 +37,6 @@ body {
   margin-top: 8rem;
   display: flex;
   flex-direction: column;
-  vertical-align: center;
 }
 
 .form__body {
