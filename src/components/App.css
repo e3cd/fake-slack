@@ -56,3 +56,9 @@ body {
 .form__button {
   margin-top: 4rem;
 }
+
+/* Messages Panel */
+
+.userpanel {
+  margin-right: "2rem";
+}

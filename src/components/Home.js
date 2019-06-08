@@ -10,14 +10,14 @@ function Home() {
 
   return (
     <Grid container style={{ background: "#eee" }}>
-      <Grid item xs={2}>
+      <Grid item xs>
         <SidePanel />
       </Grid>
 
-      <Grid item xs={7}>
+      <Grid item xs={7} className="messagespanel">
         <MessagesPanel />
       </Grid>
-      <Grid item xs={3}>
+      <Grid item xs>
         <MetaPanel />
       </Grid>
     </Grid>

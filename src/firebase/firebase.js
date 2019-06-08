@@ -38,7 +38,7 @@ class Firebase {
   }
 
   async logout() {
-    await this.auth.signOut();
+    await this.auth.signOut().then(() => console.log("user signed out"));
   }
 
   async resetPassword(email) {

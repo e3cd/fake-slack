@@ -24,9 +24,9 @@ function App(props) {
         setLoading(false);
         props.history.push("/");
       } else {
+        props.history.push("/login");
         setUser(null);
         setLoading(false);
-        props.history.push("/login");
       }
     });
 
@@ -34,7 +34,7 @@ function App(props) {
     return () => unsubscribe();
   }, []);
 
-  // console.log(user);
+  console.log(user);
   // console.log(loading);
   // console.log(props);
 
