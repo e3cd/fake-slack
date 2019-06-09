@@ -29,7 +29,7 @@ function UserPanel() {
         {
           <FormControl style={{ marginLeft: "1rem" }}>
             <InputLabel
-              style={{ marginLeft: "3rem" }}
+              style={{ marginLeft: "1rem" }}
               htmlFor="outlined-age-simple"
             >
               {user.displayName}
@@ -39,7 +39,7 @@ function UserPanel() {
             >
               <MenuItem disabled>{`Signed in as ${user.displayName}`}</MenuItem>
               <MenuItem value="">Change Avatar</MenuItem>
-              <MenuItem value="">
+              <MenuItem value="SignOut">
                 <span onClick={() => firebase.logout()}>Sign Out</span>
               </MenuItem>
             </Select>

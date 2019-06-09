@@ -8,7 +8,8 @@ import {
 } from "@material-ui/core";
 
 import Header from "./User/Header";
-import UserPanel from "./User/UserPanel";
+import User from "./User/User";
+import Channels from "./Channels/Channels";
 
 import "./../App.css";
 
@@ -22,7 +23,10 @@ function SidePanel() {
           </ListItem>
           <Divider />
           <ListItem>
-            <UserPanel />
+            <User />
+          </ListItem>
+          <ListItem>
+            <Channels />
           </ListItem>
         </List>
       </Drawer>
