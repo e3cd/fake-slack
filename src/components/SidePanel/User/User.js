@@ -14,8 +14,6 @@ import {
 function UserPanel() {
   const { user, firebase } = useContext(FirebaseContext);
 
-  console.log(firebase);
-
   return (
     <>
       <Grid

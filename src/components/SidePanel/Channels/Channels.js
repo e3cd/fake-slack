@@ -46,7 +46,7 @@ const INITIAL_STATE = {
 };
 
 function Channels() {
-  const { user, firebase } = useContext(FirebaseContext);
+  const { user, firebase, state, dispatch } = useContext(FirebaseContext);
   const { handleSubmit, handleChange, values, errors } = useFormValidation(
     INITIAL_STATE,
     validateAddChannel,
@@ -56,22 +56,26 @@ function Channels() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [channel, setChannel] = useState(null);
+  const [activeChannel, setActiveChannel] = useState("");
   const [channels, setChannels] = useState([]);
   const [channelsRef, setChannelsRef] = useState(firebase.db.ref("channels"));
-  // const [channelName, setChannelName] = useState("");
-  // const [channelDetails, setchannelDetails] = useState("");
+  const [firstLoad, setFirstLoad] = useState(true);
 
   useEffect(() => {
     channelListeners();
     return () => {};
   }, []);
 
+  useEffect(() => {
+    setFirstChannel();
+    return () => {};
+  }, [channels]);
+
   function channelListeners() {
     let loadedChannels = [];
     channelsRef.on("child_added", snap => {
       loadedChannels.push(snap.val());
       setChannels([...loadedChannels]);
-      console.log(loadedChannels);
     });
   }
 
@@ -103,6 +107,7 @@ function Channels() {
         .update(newChannel)
         .then(() => {
           console.log("channel saved");
+
           handleClose();
         });
     } catch (error) {
@@ -115,7 +120,12 @@ function Channels() {
       channels.length > 0 &&
       channels.map(channel => (
         <List className={classes.root} key={channel.id}>
-          <ListItem button name={channel.name}>
+          <ListItem
+            button
+            name={channel.name}
+            onClick={() => changeChannel(channel)}
+            selected={channel.id === activeChannel ? true : false}
+          >
             @{channel.name}
           </ListItem>
         </List>
@@ -123,7 +133,30 @@ function Channels() {
     );
   }
 
-  console.log(channels);
+  function setFirstChannel() {
+    let firstChannel = channels[0];
+    if (channels.length > 0) {
+      dispatch({
+        type: "SET_CURRENT_CHANNEL",
+        payload: firstChannel
+      });
+      setActiveChannel(firstChannel.id);
+      setChannel(channel);
+    }
+  }
+
+  function changeChannel(channel) {
+    setActiveChannel(channel.id);
+    dispatch({
+      type: "SET_CURRENT_CHANNEL",
+      payload: channel
+    });
+    setChannel(channel);
+  }
+
+  console.log(state);
+  console.log(activeChannel);
+
   return (
     <>
       <Grid item xs={12}>
