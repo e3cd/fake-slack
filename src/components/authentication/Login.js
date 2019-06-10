@@ -29,7 +29,6 @@ function Login(props) {
   const {
     values,
     errors,
-    isSubmitting,
 
     handleSubmit,
     handleChange

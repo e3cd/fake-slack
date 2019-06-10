@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import FirebaseContext from "./../../../firebase/context";
+import useFormValidation from "./../../hooks/useFormValidation";
+import validateAddChannel from "./validateAddChanel";
 
 import {
   Avatar,
@@ -27,47 +30,125 @@ import {
 const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
-    maxWidth: 752
-  },
-  demo: {
-    backgroundColor: theme.palette.background.paper
+    width: "100%",
+    maxWidth: 360,
+    backgroundColor: theme.palette.background.paper,
+    padding: "0"
   },
   title: {
     margin: theme.spacing(4, 0, 2)
   }
 }));
 
+const INITIAL_STATE = {
+  channelName: "",
+  channelDetails: ""
+};
+
 function Channels() {
+  const { user, firebase } = useContext(FirebaseContext);
+  const { handleSubmit, handleChange, values, errors } = useFormValidation(
+    INITIAL_STATE,
+    validateAddChannel,
+    addChannel
+  );
+
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [channel, setChannel] = useState(null);
+  const [channels, setChannels] = useState([]);
+  const [channelsRef, setChannelsRef] = useState(firebase.db.ref("channels"));
+  // const [channelName, setChannelName] = useState("");
+  // const [channelDetails, setchannelDetails] = useState("");
+
+  useEffect(() => {
+    channelListeners();
+    return () => {};
+  }, []);
+
+  function channelListeners() {
+    let loadedChannels = [];
+    channelsRef.on("child_added", snap => {
+      loadedChannels.push(snap.val());
+      setChannels([...loadedChannels]);
+      console.log(loadedChannels);
+    });
+  }
 
   function handleClickOpen() {
     setOpen(true);
   }
-
   function handleClose() {
     setOpen(false);
   }
 
-  console.log(open);
+  async function addChannel() {
+    // generate unique id through push method which generates key for unique id for each channel
+    const key = channelsRef.push().key;
+
+    // create new channel field
+    const newChannel = {
+      id: key,
+      name: values.channelName,
+      details: values.channelDetails,
+      createdBy: {
+        name: user.displayName,
+        avatar: user.photoURL
+      }
+    };
+
+    try {
+      await channelsRef
+        .child(key)
+        .update(newChannel)
+        .then(() => {
+          console.log("channel saved");
+          handleClose();
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function displayChannels(channels) {
+    return (
+      channels.length > 0 &&
+      channels.map(channel => (
+        <List className={classes.root} key={channel.id}>
+          <ListItem button name={channel.name}>
+            @{channel.name}
+          </ListItem>
+        </List>
+      ))
+    );
+  }
+
+  console.log(channels);
   return (
     <>
       <Grid item xs={12}>
-        <div className={classes.demo}>
-          <List dense={true}>
-            <ListItem>
+        <div>
+          <List dense={true} className={classes.root}>
+            <ListItem style={{ marginBottom: "1rem" }}>
               <ListItemAvatar>
                 <Avatar>
                   <ListIcon />
                 </Avatar>
               </ListItemAvatar>
               <ListItemText primary="CHANNELS" />
+              (
+              <ListItemText
+                style={{ textAlign: "center" }}
+                primary={channels.length}
+              />
+              )
               <ListItemSecondaryAction onClick={handleClickOpen}>
                 <IconButton edge="end" aria-label="Delete">
                   <AddIcon />
                 </IconButton>
               </ListItemSecondaryAction>
             </ListItem>
+            {displayChannels(channels)}
           </List>
         </div>
 
@@ -77,31 +158,53 @@ function Channels() {
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Add Channel</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Name of Channel"
-              type="text"
-              fullWidth
-            />
-            <TextField
-              margin="dense"
-              id="name"
-              label="About the Channel"
-              type="text"
-              fullWidth
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Add
-            </Button>
-            <Button onClick={handleClose} color="secondary">
-              Cancel
-            </Button>
-          </DialogActions>
+
+          <form onSubmit={handleSubmit}>
+            <DialogContent>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="name"
+                label="Name of Channel"
+                type="text"
+                autoComplete="off"
+                fullWidth
+                label={
+                  errors.channelName ? errors.channelName : "Name of Channel"
+                }
+                error={errors.channelName ? true : false}
+                name="channelName"
+                onChange={handleChange}
+                values={values.channelName}
+              />
+              <TextField
+                margin="dense"
+                id="name"
+                autoComplete="off"
+                label="Details of the Channel"
+                type="text"
+                name="channelDetails"
+                fullWidth
+                label={
+                  errors.channelDetails
+                    ? errors.channelDetails
+                    : "Channel Details"
+                }
+                error={errors.channelDetails ? true : false}
+                onChange={handleChange}
+                values={values.channelDetails}
+              />
+            </DialogContent>
+
+            <DialogActions>
+              <Button type="submit" color="primary">
+                Add
+              </Button>
+              <Button onClick={handleClose} color="secondary">
+                Cancel
+              </Button>
+            </DialogActions>
+          </form>
         </Dialog>
       </Grid>
     </>

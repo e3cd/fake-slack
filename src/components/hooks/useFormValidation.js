@@ -23,6 +23,7 @@ export default (initialState, validate, authenticateUser) => {
   const handleChange = event => {
     //use persist event recieved from handlechange
     event.persist();
+    setErrors("");
     setValues(previousValues => ({
       ...previousValues,
       [event.target.name]: event.target.value
@@ -35,6 +36,7 @@ export default (initialState, validate, authenticateUser) => {
     const validationErrors = validate(values);
     setErrors(validationErrors);
     setSubmitting(true);
+    console.log("submitted");
   };
 
   return {
