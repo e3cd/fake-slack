@@ -116,7 +116,7 @@ function MessagesForm() {
     }
   }
 
-  console.log(message);
+  //   console.log(message);
 
   return (
     <Paper className={classes.root}>
@@ -133,6 +133,7 @@ function MessagesForm() {
         className={classes.iconButton}
         aria-label="Search"
         onClick={sendMessage}
+        disabled={loading}
       >
         <SendIcon />
       </IconButton>
@@ -141,6 +142,7 @@ function MessagesForm() {
         color="secondary"
         className={classes.iconButton}
         aria-label="Directions"
+        disabled={loading}
       >
         <CloudUploadIcon />
       </IconButton>
