@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext, useReducer } from "react";
+import globalReducer from "./../reducers";
 import Home from "./Home";
 import Login from "./authentication/Login";
 import Register from "./authentication/Register";
@@ -16,22 +17,24 @@ function App(props) {
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const initialState = useContext(FirebaseContext);
+  const [state, dispatch] = useReducer(globalReducer, initialState);
 
   useEffect(() => {
-    const unsubscribe = firebase.auth.onAuthStateChanged(user => {
+    const listen = firebase.auth.onAuthStateChanged(user => {
       if (user) {
         setUser(user);
         setLoading(false);
         props.history.push("/");
       } else {
+        props.history.push("/login");
         setUser(null);
         setLoading(false);
-        props.history.push("/login");
       }
     });
 
     //return cleanup function to execute on unmount
-    return () => unsubscribe();
+    return () => listen();
   }, []);
 
   // console.log(user);
@@ -39,7 +42,7 @@ function App(props) {
   // console.log(props);
 
   return (
-    <FirebaseContext.Provider value={{ user, firebase }}>
+    <FirebaseContext.Provider value={{ state, dispatch, user, firebase }}>
       {loading ? (
         <Spinner />
       ) : (

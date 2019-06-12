@@ -2,16 +2,17 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import validateLogin from "./validateLogin";
 import useFormValidation from "./../hooks/useFormValidation";
-
-import Avatar from "@material-ui/core/Avatar";
-import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
-import Grid from "@material-ui/core/Grid";
-import ChatIcon from "@material-ui/icons/Chat";
-import Typography from "@material-ui/core/Typography";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Container from "@material-ui/core/Container";
+import {
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  Grid,
+  Typography,
+  CircularProgress,
+  Container
+} from "@material-ui/core";
+import { Chat as ChatIcon } from "@material-ui/icons";
 
 import firebase from "./../../firebase";
 
@@ -28,7 +29,6 @@ function Login(props) {
   const {
     values,
     errors,
-    isSubmitting,
 
     handleSubmit,
     handleChange

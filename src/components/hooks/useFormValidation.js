@@ -13,6 +13,7 @@ export default (initialState, validate, authenticateUser) => {
       if (noErrors) {
         //no errors = register / log user in via firebase
         authenticateUser();
+        setValues(initialState);
         setSubmitting(false);
       } else {
         setSubmitting(false);
@@ -22,7 +23,9 @@ export default (initialState, validate, authenticateUser) => {
 
   const handleChange = event => {
     //use persist event recieved from handlechange
+
     event.persist();
+    setErrors("");
     setValues(previousValues => ({
       ...previousValues,
       [event.target.name]: event.target.value
@@ -35,6 +38,7 @@ export default (initialState, validate, authenticateUser) => {
     const validationErrors = validate(values);
     setErrors(validationErrors);
     setSubmitting(true);
+    console.log("submitted");
   };
 
   return {

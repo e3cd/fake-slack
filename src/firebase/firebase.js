@@ -14,6 +14,7 @@ class Firebase {
     this.auth = app.auth();
     this.db = app.database();
     this.storage = app.storage();
+    this.database = app.database;
   }
 
   async register(username, email, password) {
@@ -29,7 +30,22 @@ class Firebase {
         )}?d=identicon`
       })
       .then(() => {
+        this.saveUser(newUser).then(() => {
+          console.log("User saved");
+        });
+
         console.log(newUser);
+      });
+  }
+
+  //save new user to fb
+  async saveUser(newUser) {
+    return await this.db
+      .ref("users")
+      .child(newUser.user.uid)
+      .set({
+        name: newUser.user.displayName,
+        avatar: newUser.user.photoURL
       });
   }
 
@@ -38,7 +54,7 @@ class Firebase {
   }
 
   async logout() {
-    await this.auth.signOut();
+    await this.auth.signOut().then(() => console.log("user signed out"));
   }
 
   async resetPassword(email) {

@@ -1,15 +1,18 @@
 import React, { useState, useContext } from "react";
 import FirebaseContext from "./../../firebase/context";
 import { Link } from "react-router-dom";
-import Avatar from "@material-ui/core/Avatar";
-import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
-import Grid from "@material-ui/core/Grid";
-import LockOpenIcon from "@material-ui/icons/LockOpen";
-import Typography from "@material-ui/core/Typography";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Container from "@material-ui/core/Container";
+
+import {
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  Grid,
+  Typography,
+  CircularProgress,
+  Container
+} from "@material-ui/core";
+import { LockOpen as LockOpenIcon } from "@material-ui/icons";
 
 import "./../App.css";
 
@@ -37,7 +40,7 @@ export default function ForgotPassword() {
 
   //   console.log(resetPasswordEmail);
   //   console.log(isPasswordReset);
-  //   console.log(passwordResetError);
+  console.log(passwordResetError);
 
   return (
     <Container component="main" maxWidth="xs">
