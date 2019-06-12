@@ -154,8 +154,8 @@ function Channels() {
     setChannel(channel);
   }
 
-  console.log(state);
-  console.log(activeChannel);
+  // console.log(state);
+  // console.log(activeChannel);
 
   return (
     <>
@@ -168,8 +168,7 @@ function Channels() {
                   <ListIcon />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary="CHANNELS" />
-              (
+              <ListItemText primary="CHANNELS" />(
               <ListItemText
                 style={{ textAlign: "center" }}
                 primary={channels.length}
@@ -197,6 +196,7 @@ function Channels() {
               <TextField
                 autoFocus
                 margin="dense"
+                z
                 id="name"
                 label="Name of Channel"
                 type="text"

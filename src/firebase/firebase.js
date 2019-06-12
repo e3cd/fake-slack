@@ -14,6 +14,7 @@ class Firebase {
     this.auth = app.auth();
     this.db = app.database();
     this.storage = app.storage();
+    this.database = app.database;
   }
 
   async register(username, email, password) {
@@ -59,35 +60,6 @@ class Firebase {
   async resetPassword(email) {
     await this.auth.sendPasswordResetEmail(email);
   }
-
-  // async addChannel(channelsRef, channelName, channelDetails, user) {
-  //   // generate unique id through push method which generates key for unique id for each channel
-  //   const key = channelsRef.push().key;
-
-  //   // create new channel field
-  //   const newChannel = {
-  //     id: key,
-  //     name: channelName,
-  //     details: channelDetails,
-  //     createdBy: {
-  //       name: user.displayName,
-  //       avatar: user.photoURL
-  //     }
-  //   };
-
-  //   try {
-  //     await channelsRef
-  //       .child(key)
-  //       .update(newChannel)
-  //       .then(() => {
-  //         setChannelName("");
-  //         setchannelDetails("");
-  //         handleClose();
-  //       });
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
 }
 
 const firebase = new Firebase();

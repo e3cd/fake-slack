@@ -1,7 +1,7 @@
 import React from "react";
 
 const FirebaseContext = React.createContext({
-  currentChannel: null,
+  currentChannel: {},
   isPrivateChannel: false,
   userPosts: null
 });
