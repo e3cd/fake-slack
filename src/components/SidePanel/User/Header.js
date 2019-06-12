@@ -8,7 +8,7 @@ function Header() {
       container
       justify="space-evenly"
       alignItems="center"
-      style={{ margin: "1rem 0 1rem 0" }}
+      style={{ margin: "1rem 0 1rem 0", color: "#eee" }}
     >
       <ChatIcon fontSize="large" />
 

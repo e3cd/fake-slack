@@ -4,8 +4,10 @@ import {
   Divider,
   List,
   ListItem,
-  ListItemText
+  ListItemText,
+  makeStyles
 } from "@material-ui/core";
+import { withStyles } from "@material-ui/styles";
 
 import Header from "./User/Header";
 import User from "./User/User";
@@ -13,10 +15,18 @@ import Channels from "./Channels/Channels";
 
 import "./../App.css";
 
-function SidePanel() {
+const styles = theme => ({
+  paper: { background: "rgb(4, 155, 229)" }
+});
+
+function SidePanel(props) {
   return (
     <div className="userpanel">
-      <Drawer variant="permanent" anchor="left">
+      <Drawer
+        variant="permanent"
+        anchor="left"
+        classes={{ paper: props.classes.paper }}
+      >
         <List>
           <ListItem>
             <Header />
@@ -34,4 +44,4 @@ function SidePanel() {
   );
 }
 
-export default SidePanel;
+export default withStyles(styles)(SidePanel);

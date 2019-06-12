@@ -21,6 +21,7 @@ import {
   DialogActions,
   Button
 } from "@material-ui/core";
+// import { deepBlue } from "@material-ui/core/colors";
 import {
   List as ListIcon,
   Add as AddIcon,
@@ -32,11 +33,16 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     width: "100%",
     maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: "rgb(4, 155, 229)",
+    color: "#eee",
     padding: "0"
   },
   title: {
     margin: theme.spacing(4, 0, 2)
+  },
+  avatar: {
+    color: "#fff",
+    backgroundColor: "#F9A825"
   }
 }));
 
@@ -163,8 +169,8 @@ function Channels() {
         <div>
           <List dense={true} className={classes.root}>
             <ListItem style={{ marginBottom: "1rem" }}>
-              <ListItemAvatar>
-                <Avatar>
+              <ListItemAvatar style={{ color: "rgb(24, 118, 210)" }}>
+                <Avatar className={classes.avatar}>
                   <ListIcon />
                 </Avatar>
               </ListItemAvatar>
@@ -175,7 +181,11 @@ function Channels() {
               />
               )
               <ListItemSecondaryAction onClick={handleClickOpen}>
-                <IconButton edge="end" aria-label="Delete">
+                <IconButton
+                  edge="end"
+                  aria-label="Delete"
+                  style={{ color: "#eee" }}
+                >
                   <AddIcon />
                 </IconButton>
               </ListItemSecondaryAction>
