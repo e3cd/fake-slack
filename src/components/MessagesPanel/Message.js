@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
 
     backgroundColor: theme.palette.background.paper,
     overflow: "hidden",
-    maxHeight: 300
+    maxHeight: "100%"
   },
   inline: {
     display: "inline"
@@ -48,8 +48,11 @@ function Message({ message }) {
           <Avatar src={message.user.avatar} />
         </ListItemAvatar>
         {isImage(message) ? (
-          <>
-            <Typography className={isOwnMessage(message, user)}>
+          <div
+            className={isOwnMessage(message, user)}
+            style={{ display: "flex", flexDirection: "column" }}
+          >
+            <Typography>
               {" "}
               {message.user.name} - {distanceInWordsToNow(message.timestamp)}{" "}
               ago
@@ -61,7 +64,7 @@ function Message({ message }) {
               src={message.image}
               style={{ maxHeight: "100%", maxWidth: "100%" }}
             />
-          </>
+          </div>
         ) : (
           <ListItemText
             className={isOwnMessage(message, user)}

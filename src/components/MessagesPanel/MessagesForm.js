@@ -177,7 +177,7 @@ function MessagesForm() {
       .child(pathToUpload)
       .push()
       .set(createMessage(downloadUrl))
-      .then(setProgress(0))
+      .then(setProgress(null))
       .catch(error => {
         console.error(error);
         setErrors(error);
