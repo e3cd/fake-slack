@@ -26,13 +26,11 @@ const INITIAL_STATE = {
 };
 
 function Login(props) {
-  const {
-    values,
-    errors,
-
-    handleSubmit,
-    handleChange
-  } = useFormValidation(INITIAL_STATE, validateLogin, authenticateUser);
+  const { values, errors, handleSubmit, handleChange } = useFormValidation(
+    INITIAL_STATE,
+    validateLogin,
+    authenticateUser
+  );
   const [submitting, setSubmitting] = useState(false);
   const [firebaseError, setFirebaseError] = useState(null);
 

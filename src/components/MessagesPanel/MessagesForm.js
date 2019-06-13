@@ -1,18 +1,27 @@
 import React, { useState, useContext, useEffect } from "react";
 import FirebaseContext from "./../../firebase/context";
 import useInputState from "./../hooks/useInputState";
+import useToggle from "./../hooks/useToggle";
+// import FileUpload from "./FileUpload";
+import uuidv4 from "uuid/v4";
+import FileUploader from "react-firebase-file-uploader";
 
-import { makeStyles } from "@material-ui/core/styles";
+import { lighten, makeStyles, withStyles } from "@material-ui/core/styles";
+
 import {
-  Send as SendIcon,
-  CloudUpload as CloudUploadIcon
-} from "@material-ui/icons";
+  Paper,
+  InputBase,
+  Divider,
+  IconButton,
+  Icon,
+  Button,
+  LinearProgress
+} from "@material-ui/core";
+import { CloudUpload as CloudUploadIcon } from "@material-ui/icons";
 
-import { Paper, InputBase, Divider, IconButton } from "@material-ui/core";
-
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: "2rem",
+    marginTop: "1rem",
     padding: "2px 4px",
     display: "flex",
     alignItems: "center",
@@ -25,32 +34,63 @@ const useStyles = makeStyles({
   iconButton: {
     padding: 10
   },
+  button: {
+    margin: theme.spacing(1)
+  },
+  rightIcon: {
+    marginLeft: theme.spacing(1)
+  },
   divider: {
     width: 1,
     height: 28,
     margin: 4
+  },
+  fileInput: {
+    display: "none"
   }
-});
+}));
+
+const BorderLinearProgress = withStyles({
+  root: {
+    height: 10,
+    backgroundColor: "#f7f7f7"
+  },
+  bar: {
+    borderRadius: 20,
+    backgroundColor: "#1d428a"
+  }
+})(LinearProgress);
 
 function MessagesForm() {
   const { user, state, firebase } = useContext(FirebaseContext);
 
   const [message, updateMessage, resetMessage] = useInputState("");
+  //   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
+  const [uploading, setUploading] = useToggle(false);
+  const [progress, setProgress] = useState(0);
 
+  /**
+   *
+   *  Firebase Constants
+   *
+   */
   const privateMessagesRef = firebase.db.ref("privateMessages");
   const messagesRef = firebase.db.ref("messages");
   const typingRef = firebase.db.ref("typing");
+  const storageRef = firebase.storage.ref();
 
-  const classes = useStyles();
+  /**
+   *
+   * Functions
+   *
+   */
 
   function handleKeyDown(event) {
     //ctrl and enter button are pressed
     if (event.keyCode === 13) {
       sendMessage();
-
-      console.log("pressed");
     }
 
     if (message) {
@@ -88,6 +128,73 @@ function MessagesForm() {
     return sentMessage;
   }
 
+  function handleUploadStart() {
+    setUploading();
+    setProgress(0);
+  }
+
+  function handleUploadError(error) {
+    setUploading(false);
+    console.error(error);
+  }
+
+  function handleProgress(progress) {
+    setProgress(progress);
+  }
+
+  function getPath() {
+    if (state.isPrivateChannel) {
+      return `/chat/private/${state.currentChannel.id}`;
+    } else {
+      return `/chat/public`;
+    }
+  }
+
+  function handleUploadSuccess(filename) {
+    // const storageRef = firebase.storage.ref();
+    const path = `${getPath()}/${uuidv4()}.jpg`;
+    const pathToUpload = state.currentChannel.id;
+    console.log(pathToUpload);
+
+    setProgress(100);
+    setUploading(false);
+    storageRef
+      .child(filename)
+      .getDownloadURL()
+      .then(downloadUrl => {
+        sendFileMessage(downloadUrl, messagesRef, pathToUpload);
+      })
+      .catch(error => {
+        console.error(error);
+        setErrors(error);
+      });
+    console.log(storageRef.child(path));
+  }
+
+  function sendFileMessage(downloadUrl, messagesRef, pathToUpload) {
+    console.log(pathToUpload);
+    messagesRef
+      .child(pathToUpload)
+      .push()
+      .set(createMessage(downloadUrl))
+      .then(setProgress(0))
+      .catch(error => {
+        console.error(error);
+        setErrors(error);
+      });
+  }
+
+  //   handleUploadSuccess = filename => {
+  //     this.setState({ avatar: filename, progress: 100, isUploading: false });
+  //     firebase
+  //       .storage()
+  //       .ref("images")
+  //       `${getPath()}/${uuidv4()}.jpg`
+  //       .child(getPath())
+  //       .getDownloadURL()
+
+  //   };
+
   async function sendMessage() {
     if (message) {
       setLoading(true);
@@ -116,37 +223,63 @@ function MessagesForm() {
     }
   }
 
-  //   console.log(message);
-
+  const classes = useStyles();
   return (
-    <Paper className={classes.root}>
-      <InputBase
-        onKeyDown={handleKeyDown}
-        value={message}
-        onChange={updateMessage}
-        className={classes.input}
-        placeholder="Message..."
-        inputProps={{ "aria-label": "Message..." }}
-      />
-      <IconButton
+    <div>
+      <BorderLinearProgress
+        variant="determinate"
         color="primary"
-        className={classes.iconButton}
-        aria-label="Search"
-        onClick={sendMessage}
-        disabled={loading}
-      >
-        <SendIcon />
-      </IconButton>
-      <Divider className={classes.divider} />
-      <IconButton
-        color="secondary"
-        className={classes.iconButton}
-        aria-label="Directions"
-        disabled={loading}
-      >
-        <CloudUploadIcon />
-      </IconButton>
-    </Paper>
+        value={progress}
+      />
+
+      <Paper className={classes.root}>
+        <InputBase
+          onKeyDown={handleKeyDown}
+          value={message}
+          onChange={updateMessage}
+          className={classes.input}
+          placeholder="Message..."
+          inputProps={{ "aria-label": "Message..." }}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          className={classes.button}
+          onClick={sendMessage}
+          disabled={loading}
+        >
+          Send
+          {/* This Button uses a Font Icon, see the installation instructions in the docs. */}
+          <Icon className={classes.rightIcon}>send</Icon>
+        </Button>
+
+        <Divider className={classes.divider} />
+
+        <FileUploader
+          accept="image/*"
+          id="contained-button-file"
+          name="image"
+          randomizeFilename
+          storageRef={storageRef}
+          onUploadStart={handleUploadStart}
+          onUploadError={handleUploadError}
+          onUploadSuccess={handleUploadSuccess}
+          onProgress={handleProgress}
+          style={{ display: "none" }}
+        />
+        <label htmlFor="contained-button-file">
+          <Button
+            variant="contained"
+            color="secondary"
+            component="span"
+            className={classes.button}
+          >
+            Upload
+            <CloudUploadIcon className={classes.rightIcon} />
+          </Button>
+        </label>
+      </Paper>
+    </div>
   );
 }
 

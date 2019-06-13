@@ -8,9 +8,12 @@ import {
   Typography,
   Avatar,
   makeStyles,
+  CardMedia,
   Paper
 } from "@material-ui/core";
-import moment from "moment";
+import { Image } from "semantic-ui-react";
+// import moment from "moment";
+import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 
 const isOwnMessage = (message, user) => {
   return message.user.id === user.uid ? "message__self" : "";
@@ -20,14 +23,12 @@ const isImage = message => {
   return message.hasOwnProperty("image") && !message.hasOwnProperty("content");
 };
 
-const timeFromNow = timestamp => moment(timestamp).fromNow();
-
 const useStyles = makeStyles(theme => ({
   root: {
     width: "100%",
 
     backgroundColor: theme.palette.background.paper,
-    overflow: "auto",
+    overflow: "hidden",
     maxHeight: 300
   },
   inline: {
@@ -42,19 +43,41 @@ function Message({ message }) {
 
   return (
     <List className={classes.root}>
-      <ListItem alignItems="flex-start">
+      <ListItem className={classes.item} alignItems="flex-start">
         <ListItemAvatar>
           <Avatar src={message.user.avatar} />
         </ListItemAvatar>
-        <ListItemText
-          className={isOwnMessage(message, user)}
-          primary={
-            <>
-              {message.user.name} - {timeFromNow(message.timestamp)}
-            </>
-          }
-          secondary={<>{message.content}</>}
-        />
+        {isImage(message) ? (
+          <>
+            <Typography className={isOwnMessage(message, user)}>
+              {" "}
+              {message.user.name} - {distanceInWordsToNow(message.timestamp)}{" "}
+              ago
+            </Typography>
+
+            {/* <image src={message.image} /> */}
+            {/* <CardMedia image={message.image} className={classes.media} /> */}
+            <Image
+              src={message.image}
+              style={{ maxHeight: "100%", maxWidth: "100%" }}
+            />
+          </>
+        ) : (
+          <ListItemText
+            className={isOwnMessage(message, user)}
+            primary={
+              <>
+                {message.user.name} - {distanceInWordsToNow(message.timestamp)}{" "}
+                ago
+              </>
+            }
+            secondary={
+              <>
+                <Typography>{message.content}</Typography>
+              </>
+            }
+          />
+        )}
       </ListItem>
     </List>
   );

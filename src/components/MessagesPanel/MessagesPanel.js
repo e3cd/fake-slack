@@ -61,7 +61,6 @@ function MessagesPanel() {
 
       setMessages([...loadedMessages]);
       toggleMessagesLoading();
-      console.log(messages);
       // this.countUniqueUsers(loadedMessages);
       // //count user posts to show on metapanel
       // this.countUserPosts(loadedMessages);

@@ -80,6 +80,12 @@ body {
   padding-left: 8px;
 }
 
+.message__image {
+  padding: 1em;
+  height: 100%;
+  width: 100%;
+}
+
 /* .userpanel {
   margin-right: 2rem;
 } */
