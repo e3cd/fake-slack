@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import FirebaseContext from "./../../firebase/context";
 import useToggle from "./../hooks/useToggle";
 import { Paper } from "@material-ui/core";
@@ -11,6 +11,16 @@ function MessagesPanel() {
   const [messages, setMessages] = useState([]);
   const [messagesLoading, toggleMessagesLoading] = useToggle(true);
   const [listeners, setListeners] = useState([]);
+  const [numUniqueUsers, setNumUniqueUsers] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchLoading, setSearchLoading] = useToggle(false);
+  const [searchResults, setSearchResults] = useState("");
+
+  const privateMessagesRef = firebase.db.ref("privateMessages");
+  const messagesRef = firebase.db.ref("messages");
+  const typingRef = firebase.db.ref("typing");
+
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     setMessages([]);
@@ -20,9 +30,17 @@ function MessagesPanel() {
     }
   }, [state.currentChannel.id]);
 
-  const privateMessagesRef = firebase.db.ref("privateMessages");
-  const messagesRef = firebase.db.ref("messages");
-  const typingRef = firebase.db.ref("typing");
+  useEffect(scrollToBottom, [messages]);
+
+  /**
+   *
+   * Functions
+   *
+   */
+
+  function scrollToBottom() {
+    messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+  }
 
   function getMessagesRef() {
     return state.isPrivateChannel ? privateMessagesRef : messagesRef;
@@ -61,12 +79,28 @@ function MessagesPanel() {
 
       setMessages([...loadedMessages]);
       toggleMessagesLoading();
-      // this.countUniqueUsers(loadedMessages);
+      countUniqueUsers(loadedMessages);
       // //count user posts to show on metapanel
-      // this.countUserPosts(loadedMessages);
+      countUserPosts(loadedMessages);
     });
     addToListeners(channelId, ref, "child_added");
   }
+
+  function countUniqueUsers(messages) {
+    const uniqueUsers = messages.reduce((acc, message) => {
+      //check to see if acc array has name, push if not
+      if (!acc.includes(message.user.name)) {
+        acc.push(message.user.name);
+      }
+      return acc;
+    }, []);
+    //check for 1 user for no plural
+    const plural = uniqueUsers.length > 1 || uniqueUsers.length === 0;
+    const numUniqueUsers = `${uniqueUsers.length} user${plural ? `s` : ""}`;
+    setNumUniqueUsers(numUniqueUsers);
+  }
+
+  function countUserPosts(messages) {}
 
   // function displayMessages(messages) {
   //   messages.length > 0 &&
@@ -74,6 +108,27 @@ function MessagesPanel() {
   //       <Message key={message.timestamp} message={message} />
   //     ));
   // }
+
+  function handleSearchChange(event) {
+    setSearchTerm(event.target.value);
+    setSearchLoading();
+    handleSearchMessages();
+  }
+
+  function handleSearchMessages() {
+    //spread to not mutate messaages state, apply regex globally and case insensitive 'gi'
+    const channelMessages = [...messages];
+    const regex = new RegExp(searchTerm, "gi");
+    const searchResults = channelMessages.reduce((acc, message) => {
+      //check to see if message has content and not image
+      if (message.content && message.content.match(regex)) {
+        acc.push(message);
+      }
+      return acc;
+    }, []);
+    setSearchResults(searchResults);
+    setTimeout(() => setSearchLoading(), 1000);
+  }
 
   const displayMessages = messages =>
     messages.length > 0 &&
@@ -85,8 +140,16 @@ function MessagesPanel() {
   // console.log(state.currentChannel.id);
   return (
     <div>
-      <MessagesHeader />
-      <Paper className="messages__panel">{displayMessages(messages)}</Paper>
+      <MessagesHeader
+        numUniqueUsers={numUniqueUsers}
+        handleSearchChange={handleSearchChange}
+      />
+      <Paper className="messages__panel">
+        {searchTerm
+          ? displayMessages(searchResults)
+          : displayMessages(messages)}
+        <div ref={messagesEndRef} />
+      </Paper>
 
       <MessagesForm getMessagesRef={getMessagesRef} />
     </div>

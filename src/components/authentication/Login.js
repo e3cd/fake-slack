@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import validateLogin from "./validateLogin";
+import validateLogin from "./validation/validateLogin";
 import useFormValidation from "./../hooks/useFormValidation";
 import {
   Avatar,

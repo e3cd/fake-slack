@@ -12,12 +12,14 @@ import {
   Paper
 } from "@material-ui/core";
 import { Image } from "semantic-ui-react";
-// import moment from "moment";
-import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
+import moment from "moment";
+// import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 
 const isOwnMessage = (message, user) => {
   return message.user.id === user.uid ? "message__self" : "";
 };
+
+const timeFromNow = timestamp => moment(timestamp).fromNow();
 
 const isImage = message => {
   return message.hasOwnProperty("image") && !message.hasOwnProperty("content");
@@ -53,13 +55,8 @@ function Message({ message }) {
             style={{ display: "flex", flexDirection: "column" }}
           >
             <Typography>
-              {" "}
-              {message.user.name} - {distanceInWordsToNow(message.timestamp)}{" "}
-              ago
+              {message.user.name} - {timeFromNow(message.timestamp)}
             </Typography>
-
-            {/* <image src={message.image} /> */}
-            {/* <CardMedia image={message.image} className={classes.media} /> */}
             <Image
               src={message.image}
               style={{ maxHeight: "100%", maxWidth: "100%" }}
@@ -70,8 +67,7 @@ function Message({ message }) {
             className={isOwnMessage(message, user)}
             primary={
               <>
-                {message.user.name} - {distanceInWordsToNow(message.timestamp)}{" "}
-                ago
+                {message.user.name} - {timeFromNow(message.timestamp)}
               </>
             }
             secondary={

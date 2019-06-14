@@ -132,11 +132,15 @@ function Channels() {
             onClick={() => changeChannel(channel)}
             selected={channel.id === activeChannel ? true : false}
           >
-            @{channel.name}
+            {displayChannelName()}{channel.name}
           </ListItem>
         </List>
       ))
     );
+  }
+
+  function displayChannelName() {
+    return state.isPrivateChannel ? "@" : "#";
   }
 
   function setFirstChannel() {

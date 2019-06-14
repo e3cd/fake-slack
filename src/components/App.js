@@ -7,14 +7,11 @@ import ForgotPassword from "./authentication/ForgotPassword";
 import { Route, Switch, withRouter } from "react-router-dom";
 
 import firebase, { FirebaseContext } from "./../firebase";
-// import useAuth from "./hooks/useAuth";
 import Spinner from "./Spinner";
 
 import "./App.css";
 
 function App(props) {
-  // const user = useAuth();
-
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const initialState = useContext(FirebaseContext);
@@ -36,10 +33,6 @@ function App(props) {
     //return cleanup function to execute on unmount
     return () => listen();
   }, []);
-
-  // console.log(user);
-  // console.log(loading);
-  // console.log(props);
 
   return (
     <FirebaseContext.Provider value={{ state, dispatch, user, firebase }}>

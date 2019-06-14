@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from "react";
 import FirebaseContext from "./../../firebase/context";
 import useInputState from "./../hooks/useInputState";
 import useToggle from "./../hooks/useToggle";
-// import FileUpload from "./FileUpload";
 import uuidv4 from "uuid/v4";
 import FileUploader from "react-firebase-file-uploader";
 
@@ -52,7 +51,8 @@ const useStyles = makeStyles(theme => ({
 
 const BorderLinearProgress = withStyles({
   root: {
-    height: 10,
+    marginTop: "2px",
+    height: 5,
     backgroundColor: "#f7f7f7"
   },
   bar: {
@@ -79,7 +79,10 @@ function MessagesForm() {
   const privateMessagesRef = firebase.db.ref("privateMessages");
   const messagesRef = firebase.db.ref("messages");
   const typingRef = firebase.db.ref("typing");
-  const storageRef = firebase.storage.ref();
+  const publicStorageRef = firebase.storage.ref("chat/public");
+  const privateStorageRef = firebase.storage.ref(
+    `chat/private/${state.currentChannel.id}`
+  );
 
   /**
    *
@@ -142,23 +145,19 @@ function MessagesForm() {
     setProgress(progress);
   }
 
-  function getPath() {
-    if (state.isPrivateChannel) {
-      return `/chat/private/${state.currentChannel.id}`;
-    } else {
-      return `/chat/public`;
-    }
+  function getStorageRef() {
+    return state.isPrivateChannel ? privateMessagesRef : publicStorageRef;
   }
 
   function handleUploadSuccess(filename) {
     // const storageRef = firebase.storage.ref();
-    const path = `${getPath()}/${uuidv4()}.jpg`;
+    // const path = `${getPath()}/${uuidv4()}.jpg`;
     const pathToUpload = state.currentChannel.id;
     console.log(pathToUpload);
 
     setProgress(100);
-    setUploading(false);
-    storageRef
+    setUploading();
+    getStorageRef()
       .child(filename)
       .getDownloadURL()
       .then(downloadUrl => {
@@ -168,7 +167,7 @@ function MessagesForm() {
         console.error(error);
         setErrors(error);
       });
-    console.log(storageRef.child(path));
+    // console.log(getStorageRef.child(filename));
   }
 
   function sendFileMessage(downloadUrl, messagesRef, pathToUpload) {
@@ -177,23 +176,12 @@ function MessagesForm() {
       .child(pathToUpload)
       .push()
       .set(createMessage(downloadUrl))
-      .then(setProgress(null))
+      .then(setProgress(0))
       .catch(error => {
         console.error(error);
         setErrors(error);
       });
   }
-
-  //   handleUploadSuccess = filename => {
-  //     this.setState({ avatar: filename, progress: 100, isUploading: false });
-  //     firebase
-  //       .storage()
-  //       .ref("images")
-  //       `${getPath()}/${uuidv4()}.jpg`
-  //       .child(getPath())
-  //       .getDownloadURL()
-
-  //   };
 
   async function sendMessage() {
     if (message) {
@@ -226,12 +214,6 @@ function MessagesForm() {
   const classes = useStyles();
   return (
     <div>
-      <BorderLinearProgress
-        variant="determinate"
-        color="primary"
-        value={progress}
-      />
-
       <Paper className={classes.root}>
         <InputBase
           onKeyDown={handleKeyDown}
@@ -260,7 +242,7 @@ function MessagesForm() {
           id="contained-button-file"
           name="image"
           randomizeFilename
-          storageRef={storageRef}
+          storageRef={getStorageRef()}
           onUploadStart={handleUploadStart}
           onUploadError={handleUploadError}
           onUploadSuccess={handleUploadSuccess}
@@ -279,6 +261,12 @@ function MessagesForm() {
           </Button>
         </label>
       </Paper>
+      <BorderLinearProgress
+        variant="determinate"
+        color="primary"
+        value={progress}
+        style={{ visibility: progress === 0 ? "hidden" : "visible" }}
+      />
     </div>
   );
 }

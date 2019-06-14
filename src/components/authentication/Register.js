@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import validateRegister from "./validateRegister";
+import validateRegister from "./validation/validateRegister";
 import useFormValidation from "./../hooks/useFormValidation";
 
 import {
