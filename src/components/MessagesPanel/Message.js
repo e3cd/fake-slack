@@ -41,7 +41,7 @@ const useStyles = makeStyles(theme => ({
 function Message({ message }) {
   const classes = useStyles();
 
-  const { user } = useContext(FirebaseContext);
+  const { currentUser } = useContext(FirebaseContext);
 
   return (
     <List className={classes.root}>
@@ -51,7 +51,7 @@ function Message({ message }) {
         </ListItemAvatar>
         {isImage(message) ? (
           <div
-            className={isOwnMessage(message, user)}
+            className={isOwnMessage(message, currentUser)}
             style={{ display: "flex", flexDirection: "column" }}
           >
             <Typography>
@@ -64,7 +64,7 @@ function Message({ message }) {
           </div>
         ) : (
           <ListItemText
-            className={isOwnMessage(message, user)}
+            className={isOwnMessage(message, currentUser)}
             primary={
               <>
                 {message.user.name} - {timeFromNow(message.timestamp)}

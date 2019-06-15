@@ -64,7 +64,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function MessagesHeader({ numUniqueUsers, handleSearchChange }) {
-  const { state, dispatch } = useContext(FirebaseContext);
+  const { state } = useContext(FirebaseContext);
 
   const classes = useStyles();
 
@@ -73,7 +73,14 @@ function MessagesHeader({ numUniqueUsers, handleSearchChange }) {
     return state.isPrivateChannel ? "@" : "#";
   }
 
-  // console.log(numUniqueUsers);
+  function displayChannelStatus() {
+    const userChannel = state.directMessagesUsers.filter(
+      user => user.name === state.currentChannel.name
+    );
+
+    return state.isPrivateChannel ? userChannel[0].status : numUniqueUsers;
+  }
+
   return (
     <div>
       <Paper className={classes.root}>
@@ -88,15 +95,15 @@ function MessagesHeader({ numUniqueUsers, handleSearchChange }) {
           </Typography>
           <StarBorderIcon />
           <Divider className={classes.divider} />
-
-          {numUniqueUsers}
+          {state.currentChannel && displayChannelStatus()}
+          {/* {numUniqueUsers} */}
         </div>
         <div className={classes.search}>
           <div className={classes.searchIcon}>
             <SearchIcon />
           </div>
           <InputBase
-          onChange={handleSearchChange}
+            onChange={handleSearchChange}
             placeholder="Search…"
             classes={{
               root: classes.inputRoot,

@@ -52,7 +52,9 @@ const INITIAL_STATE = {
 };
 
 function Channels() {
-  const { user, firebase, state, dispatch } = useContext(FirebaseContext);
+  const { currentUser, firebase, state, dispatch } = useContext(
+    FirebaseContext
+  );
   const { handleSubmit, handleChange, values, errors } = useFormValidation(
     INITIAL_STATE,
     validateAddChannel,
@@ -64,8 +66,9 @@ function Channels() {
   const [channel, setChannel] = useState(null);
   const [activeChannel, setActiveChannel] = useState("");
   const [channels, setChannels] = useState([]);
-  const [channelsRef, setChannelsRef] = useState(firebase.db.ref("channels"));
   const [firstLoad, setFirstLoad] = useState(true);
+
+  const channelsRef = firebase.db.ref("channels");
 
   useEffect(() => {
     channelListeners();
@@ -102,8 +105,8 @@ function Channels() {
       name: values.channelName,
       details: values.channelDetails,
       createdBy: {
-        name: user.displayName,
-        avatar: user.photoURL
+        name: currentUser.displayName,
+        avatar: currentUser.photoURL
       }
     };
 
@@ -130,17 +133,13 @@ function Channels() {
             button
             name={channel.name}
             onClick={() => changeChannel(channel)}
-            selected={channel.id === activeChannel ? true : false}
+            selected={channel.id === state.currentChannel.id ? true : false}
           >
-            {displayChannelName()}{channel.name}
+            #{channel.name}
           </ListItem>
         </List>
       ))
     );
-  }
-
-  function displayChannelName() {
-    return state.isPrivateChannel ? "@" : "#";
   }
 
   function setFirstChannel() {
@@ -158,14 +157,15 @@ function Channels() {
   function changeChannel(channel) {
     setActiveChannel(channel.id);
     dispatch({
+      type: "SET_PRIVATE_CHANNEL",
+      payload: false
+    });
+    dispatch({
       type: "SET_CURRENT_CHANNEL",
       payload: channel
     });
     setChannel(channel);
   }
-
-  // console.log(state);
-  // console.log(activeChannel);
 
   return (
     <>
@@ -244,7 +244,7 @@ function Channels() {
             </DialogContent>
 
             <DialogActions>
-              <Button type="submit" color="primary">
+              <Button type="submit" color="primary" onClick={changeChannel}>
                 Add
               </Button>
               <Button onClick={handleClose} color="secondary">

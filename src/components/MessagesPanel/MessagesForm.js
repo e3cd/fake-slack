@@ -62,7 +62,7 @@ const BorderLinearProgress = withStyles({
 })(LinearProgress);
 
 function MessagesForm() {
-  const { user, state, firebase } = useContext(FirebaseContext);
+  const { currentUser, state, firebase } = useContext(FirebaseContext);
 
   const [message, updateMessage, resetMessage] = useInputState("");
   //   const [open, setOpen] = useState(false);
@@ -99,12 +99,12 @@ function MessagesForm() {
     if (message) {
       typingRef
         .child(state.currentChannel.id)
-        .child(user.uid)
-        .set(user.displayName);
+        .child(currentUser.uid)
+        .set(currentUser.displayName);
     } else {
       typingRef
         .child(state.currentChannel.id)
-        .child(user.uid)
+        .child(currentUser.uid)
         .remove();
     }
   }
@@ -117,9 +117,9 @@ function MessagesForm() {
     const sentMessage = {
       timestamp: firebase.database.ServerValue.TIMESTAMP,
       user: {
-        id: user.uid,
-        name: user.displayName,
-        avatar: user.photoURL
+        id: currentUser.uid,
+        name: currentUser.displayName,
+        avatar: currentUser.photoURL
       }
     };
     if (fileUrl !== null) {
@@ -199,7 +199,7 @@ function MessagesForm() {
           });
         typingRef
           .child(state.currentChannel.id)
-          .child(user.uid)
+          .child(currentUser.uid)
           .remove();
       } catch (error) {
         console.error(error);

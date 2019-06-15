@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import FirebaseContext from "../../../firebase/context";
+import { makeStyles } from "@material-ui/core/styles";
 import {
   Grid,
   Avatar,
@@ -12,8 +13,27 @@ import {
 } from "@material-ui/core/";
 
 function UserPanel() {
-  const { user, firebase } = useContext(FirebaseContext);
+  const { currentUser, firebase } = useContext(FirebaseContext);
 
+  const useStyles = makeStyles({
+    form: {
+      marginLeft: "1rem"
+    },
+    root: {
+      background: "#FF7043",
+      borderRadius: 3,
+      width: "10rem",
+      boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)"
+    },
+    label: {
+      zIndex: "99",
+      textTransform: "capitalize",
+      color: "white",
+      marginLeft: "3.5rem"
+    }
+  });
+
+  const classes = useStyles();
   return (
     <>
       <Grid
@@ -22,25 +42,25 @@ function UserPanel() {
         alignItems="center"
         style={{ marginTop: "1rem" }}
       >
-        <Avatar src={user.photoURL} style={{ marginLeft: "1rem" }} />
+        <Avatar src={currentUser.photoURL} className={classes.form} />
 
         {
           <FormControl style={{ marginLeft: "1rem" }}>
-            <InputLabel
-              style={{ marginLeft: "1rem", color: "#eee" }}
-              htmlFor="outlined-age-simple"
-            >
-              {user.displayName}
+            <InputLabel htmlFor="outlined-age-simple" className={classes.label}>
+              {currentUser.displayName}
             </InputLabel>
             <Select
               input={
                 <OutlinedInput
-                  style={{ width: "10rem", color: "#eee" }}
+                  // style={{ width: "10rem", color: "#eee" }}
+                  className={classes.root}
                   name="age"
                 />
               }
             >
-              <MenuItem disabled>{`Signed in as ${user.displayName}`}</MenuItem>
+              <MenuItem disabled>{`Signed in as ${
+                currentUser.displayName
+              }`}</MenuItem>
               <MenuItem value="">Change Avatar</MenuItem>
               <MenuItem value="SignOut">
                 <span onClick={() => firebase.logout()}>Sign Out</span>

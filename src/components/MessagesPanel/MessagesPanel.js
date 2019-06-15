@@ -7,7 +7,7 @@ import MessagesForm from "./MessagesForm";
 import Message from "./Message";
 
 function MessagesPanel() {
-  const { state, user, firebase } = useContext(FirebaseContext);
+  const { state, currentUser, firebase } = useContext(FirebaseContext);
   const [messages, setMessages] = useState([]);
   const [messagesLoading, toggleMessagesLoading] = useToggle(true);
   const [listeners, setListeners] = useState([]);
@@ -24,12 +24,18 @@ function MessagesPanel() {
 
   useEffect(() => {
     setMessages([]);
-    if (state.currentChannel.id && user) {
+
+    if (state.currentChannel.id && currentUser) {
       removeListeners(listeners);
       addListeners(state.currentChannel.id);
     }
+    setNumUniqueUsers("");
   }, [state.currentChannel.id]);
 
+  useEffect(() => {
+    setSearchResults("");
+    setSearchTerm("");
+  }, [state.currentChannel.id]);
   useEffect(scrollToBottom, [messages]);
 
   /**
@@ -137,7 +143,6 @@ function MessagesPanel() {
       return <Message key={message.timestamp} message={message} />;
     });
 
-  // console.log(state.currentChannel.id);
   return (
     <div>
       <MessagesHeader

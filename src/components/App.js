@@ -12,7 +12,7 @@ import Spinner from "./Spinner";
 import "./App.css";
 
 function App(props) {
-  const [user, setUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const initialState = useContext(FirebaseContext);
   const [state, dispatch] = useReducer(globalReducer, initialState);
@@ -20,12 +20,12 @@ function App(props) {
   useEffect(() => {
     const listen = firebase.auth.onAuthStateChanged(user => {
       if (user) {
-        setUser(user);
+        setCurrentUser(user);
         setLoading(false);
         props.history.push("/");
       } else {
         props.history.push("/login");
-        setUser(null);
+        setCurrentUser(null);
         setLoading(false);
       }
     });
@@ -35,7 +35,9 @@ function App(props) {
   }, []);
 
   return (
-    <FirebaseContext.Provider value={{ state, dispatch, user, firebase }}>
+    <FirebaseContext.Provider
+      value={{ state, dispatch, currentUser, firebase }}
+    >
       {loading ? (
         <Spinner />
       ) : (
