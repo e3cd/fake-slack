@@ -73,13 +73,16 @@ function MessagesHeader({ numUniqueUsers, handleSearchChange }) {
     return state.isPrivateChannel ? "@" : "#";
   }
 
-  function displayChannelStatus() {
-    const userChannel = state.directMessagesUsers.filter(
-      user => user.name === state.currentChannel.name
-    );
-
-    return state.isPrivateChannel ? userChannel[0].status : numUniqueUsers;
+  function displayUserStatus() {
+    if (state.directMessagesUsers && state.directMessagesUsers.length) {
+      const userChannel = state.directMessagesUsers.filter(
+        user => user.name === state.currentChannel.name
+      );
+      return userChannel[0].status;
+    }
   }
+
+  console.log(state);
 
   return (
     <div>
@@ -93,10 +96,9 @@ function MessagesHeader({ numUniqueUsers, handleSearchChange }) {
               </span>
             )}
           </Typography>
-          <StarBorderIcon />
+          {!state.isPrivateChannel ? <StarBorderIcon /> : ""}
           <Divider className={classes.divider} />
-          {state.currentChannel && displayChannelStatus()}
-          {/* {numUniqueUsers} */}
+          {state.isPrivateChannel ? displayUserStatus() : numUniqueUsers}
         </div>
         <div className={classes.search}>
           <div className={classes.searchIcon}>

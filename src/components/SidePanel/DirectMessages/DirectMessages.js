@@ -72,14 +72,10 @@ function DirectMessages(props) {
   //   return () => remove;
   // }, []);
 
-  //   useEffect(() => {
-  //     setFirstChannel();
-  //     return () => {};
-  //   }, [channels]);
-
   function removeListeners() {
     usersRef.off();
     presenceRef.off();
+
     connectedRef.off();
   }
 
@@ -93,6 +89,10 @@ function DirectMessages(props) {
         newUser["uid"] = snap.key;
         newUser["status"] = "offline";
         loadedUsers.push(newUser);
+        dispatch({
+          type: "SET_DIRECT_MESSAGES_USERS",
+          payload: loadedUsers
+        });
         setUsers(loadedUsers);
       }
     });
@@ -179,9 +179,7 @@ function DirectMessages(props) {
             name={user.name}
             onClick={() => changeChannel(user)}
             selected={
-              `${user.uid}/${currentUser.uid}` === state.currentChannel.id
-                ? true
-                : false
+              getChannelId(user.uid) === state.currentChannel.id ? true : false
             }
             className={classes.item}
           >
@@ -196,9 +194,6 @@ function DirectMessages(props) {
       ))
     );
   }
-
-  console.log(users);
-  console.log(state.currentChannel);
 
   const classes = useStyles();
 

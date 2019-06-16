@@ -2,10 +2,9 @@ import React, { useState, useContext, useEffect } from "react";
 import FirebaseContext from "./../../firebase/context";
 import useInputState from "./../hooks/useInputState";
 import useToggle from "./../hooks/useToggle";
-import uuidv4 from "uuid/v4";
 import FileUploader from "react-firebase-file-uploader";
 
-import { lighten, makeStyles, withStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 
 import {
   Paper,
@@ -113,6 +112,10 @@ function MessagesForm() {
     return state.isPrivateChannel ? privateMessagesRef : messagesRef;
   }
 
+  function getStorageRef() {
+    return state.isPrivateChannel ? privateStorageRef : publicStorageRef;
+  }
+
   function createMessage(fileUrl = null) {
     const sentMessage = {
       timestamp: firebase.database.ServerValue.TIMESTAMP,
@@ -127,7 +130,6 @@ function MessagesForm() {
     } else {
       sentMessage["content"] = message;
     }
-    console.log(message);
     return sentMessage;
   }
 
@@ -145,13 +147,7 @@ function MessagesForm() {
     setProgress(progress);
   }
 
-  function getStorageRef() {
-    return state.isPrivateChannel ? privateMessagesRef : publicStorageRef;
-  }
-
   function handleUploadSuccess(filename) {
-    // const storageRef = firebase.storage.ref();
-    // const path = `${getPath()}/${uuidv4()}.jpg`;
     const pathToUpload = state.currentChannel.id;
     console.log(pathToUpload);
 
@@ -161,7 +157,7 @@ function MessagesForm() {
       .child(filename)
       .getDownloadURL()
       .then(downloadUrl => {
-        sendFileMessage(downloadUrl, messagesRef, pathToUpload);
+        sendFileMessage(downloadUrl, getMessagesRef(), pathToUpload);
       })
       .catch(error => {
         console.error(error);
@@ -192,7 +188,6 @@ function MessagesForm() {
           .push()
           .set(createMessage())
           .then(() => {
-            console.log("message sent");
             setLoading(false);
             resetMessage();
             setErrors([]);

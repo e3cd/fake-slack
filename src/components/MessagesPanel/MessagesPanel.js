@@ -5,9 +5,12 @@ import { Paper } from "@material-ui/core";
 import MessagesHeader from "./MessagesHeader";
 import MessagesForm from "./MessagesForm";
 import Message from "./Message";
+import { dispatch } from "rxjs/internal/observable/range";
 
 function MessagesPanel() {
-  const { state, currentUser, firebase } = useContext(FirebaseContext);
+  const { state, currentUser, firebase, dispatch } = useContext(
+    FirebaseContext
+  );
   const [messages, setMessages] = useState([]);
   const [messagesLoading, toggleMessagesLoading] = useToggle(true);
   const [listeners, setListeners] = useState([]);
@@ -23,13 +26,13 @@ function MessagesPanel() {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    setNumUniqueUsers("");
     setMessages([]);
 
     if (state.currentChannel.id && currentUser) {
       removeListeners(listeners);
       addListeners(state.currentChannel.id);
     }
-    setNumUniqueUsers("");
   }, [state.currentChannel.id]);
 
   useEffect(() => {
@@ -84,6 +87,10 @@ function MessagesPanel() {
       loadedMessages.push(snap.val());
 
       setMessages([...loadedMessages]);
+      dispatch({
+        type: "SET_CHANNEL_MESSAGES",
+        payload: loadedMessages
+      });
       toggleMessagesLoading();
       countUniqueUsers(loadedMessages);
       // //count user posts to show on metapanel

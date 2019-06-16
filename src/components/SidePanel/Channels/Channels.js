@@ -6,7 +6,6 @@ import validateAddChannel from "./validateAddChanel";
 import {
   Avatar,
   ListItemAvatar,
-  Typography,
   Grid,
   List,
   ListItem,
@@ -19,7 +18,8 @@ import {
   DialogContent,
   TextField,
   DialogActions,
-  Button
+  Button,
+  Badge
 } from "@material-ui/core";
 // import { deepBlue } from "@material-ui/core/colors";
 import {
@@ -43,6 +43,10 @@ const useStyles = makeStyles(theme => ({
   avatar: {
     color: "#fff",
     backgroundColor: "#F9A825"
+  },
+  item: {
+    display: "flex",
+    justifyContent: "space-between"
   }
 }));
 
@@ -67,25 +71,123 @@ function Channels() {
   const [activeChannel, setActiveChannel] = useState("");
   const [channels, setChannels] = useState([]);
   const [firstLoad, setFirstLoad] = useState(true);
+  const [notifications, setNotifications] = useState([]);
 
   const channelsRef = firebase.db.ref("channels");
-
-  useEffect(() => {
-    channelListeners();
-    return () => {};
-  }, []);
+  const messagesRef = firebase.db.ref("messages");
 
   useEffect(() => {
     setFirstChannel();
+  }, []);
+
+  useEffect(() => {
+    setChannel([]);
+
+    channelListeners();
     return () => {};
-  }, [channels]);
+  }, [channels.length, notifications.length]);
+
+  // useEffect(() => {
+  //   setFirstChannel();
+  // }, [channels]);
+
+  // useEffect(() => {
+  //   channelListeners();
+  // }, [channels.length]);
+
+  // useEffect(() => {
+  //   channelListeners();
+  // }, [notifications.length]);
 
   function channelListeners() {
     let loadedChannels = [];
     channelsRef.on("child_added", snap => {
       loadedChannels.push(snap.val());
       setChannels([...loadedChannels]);
+      addNotificationListener(snap.key);
     });
+  }
+
+  //remove listeners when navigating to different route, use firebase method off
+  function removeListeners() {
+    channelsRef.off();
+    channels.forEach(channel => {
+      messagesRef.child(channel.id).off();
+    });
+  }
+
+  function addNotificationListener(channelId) {
+    //put channel id as child on messages ref, listen to value changes -- any new messages added to any channels
+
+    messagesRef.child(channelId).on("value", snap => {
+      if (channel) {
+        handleNotifications(channelId, channel.id, notifications, snap);
+      }
+    });
+  }
+
+  //show number of mesages that are new and other channels that theyre not on
+  function handleNotifications(
+    channelId,
+    currentChannelId,
+    notifications,
+    snap
+  ) {
+    let lastTotal = 0;
+    //use findindex to iterate over the notifications state, find notification id that matches with channel id
+    let index = notifications.findIndex(
+      notification => notification.id === channelId
+    );
+
+    //
+    if (index !== -1) {
+      //make sure that notification is for a channel other than current channel
+      if (channelId !== currentChannelId) {
+        lastTotal = notifications[index].total;
+
+        //most recent number of notifications, if there is a new message/multiple messages added ,update count with snap.numchildren() - lastTOtal
+
+        if (snap.numChildren() - lastTotal > 0) {
+          notifications[index].count = snap.numChildren() - lastTotal;
+        }
+      }
+      //update last known total
+      notifications[index].lastKnownTotal = snap.numChildren();
+    } else {
+      notifications.push({
+        id: channelId,
+        total: snap.numChildren(),
+        lastKnownTotal: snap.numChildren(),
+        count: 0
+      });
+    }
+    setNotifications(notifications);
+  }
+
+  function clearNotifications() {
+    let index = notifications.findIndex(
+      notification => notification.id === channel.id
+    );
+
+    if (index !== -1) {
+      let updatedNotifications = [...notifications];
+      updatedNotifications[index].total = notifications[index].lastKnownTotal;
+      updatedNotifications[index].count = 0;
+
+      setNotifications(updatedNotifications);
+    }
+  }
+
+  function getNotificationCount(channel) {
+    let count = 0;
+
+    notifications.forEach(notification => {
+      if (notification.id === channel.id) {
+        count = notification.count;
+      }
+    });
+
+    if (count > 0) return count;
   }
 
   function handleClickOpen() {
@@ -134,8 +236,15 @@ function Channels() {
             name={channel.name}
             onClick={() => changeChannel(channel)}
             selected={channel.id === state.currentChannel.id ? true : false}
+            className={classes.item}
           >
             #{channel.name}
+            {getNotificationCount(channel) && (
+              <Badge
+                color="secondary"
+                badgeContent={getNotificationCount(channel)}
+              />
+            )}
           </ListItem>
         </List>
       ))
@@ -145,17 +254,14 @@ function Channels() {
   function setFirstChannel() {
     let firstChannel = channels[0];
     if (channels.length > 0) {
-      dispatch({
-        type: "SET_CURRENT_CHANNEL",
-        payload: firstChannel
-      });
       setActiveChannel(firstChannel.id);
-      setChannel(channel);
+      setChannel(firstChannel);
     }
   }
 
   function changeChannel(channel) {
     setActiveChannel(channel.id);
+    clearNotifications();
     dispatch({
       type: "SET_PRIVATE_CHANNEL",
       payload: false
@@ -167,6 +273,10 @@ function Channels() {
     setChannel(channel);
   }
 
+  console.log(state);
+  // console.log(notifications);
+  // // console.log(notifications);
+  // console.log(getNotificationCount(channel));
   return (
     <>
       <Grid item xs={12}>
