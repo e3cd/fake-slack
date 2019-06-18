@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import FirebaseContext from "../../../firebase/context";
 import useToggle from "./../../hooks/useToggle";
 import FileUploader from "react-firebase-file-uploader";
@@ -17,6 +17,43 @@ import {
 } from "@material-ui/core/";
 import { PhotoCamera as PhotoCameraIcon } from "@material-ui/icons";
 
+const useStyles = makeStyles(theme => ({
+  avatar: {
+    marginLeft: "1.5rem",
+    width: 60,
+    height: 60
+  },
+  avatarLoad: {
+    marginLeft: "1.5rem"
+  },
+  root: {
+    background: "#FF7043",
+    borderRadius: 3,
+    width: "6.5rem",
+    boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)"
+  },
+  label: {
+    zIndex: "99",
+    color: "white",
+    marginLeft: "2rem"
+  },
+  button: {
+    margin: theme.spacing(1)
+  }
+}));
+
+const BorderLinearProgress = withStyles({
+  root: {
+    marginTop: "2px",
+    height: 5,
+    backgroundColor: "#f7f7f7"
+  },
+  bar: {
+    borderRadius: 20,
+    backgroundColor: "#1d428a"
+  }
+})(LinearProgress);
+
 function UserPanel() {
   const { currentUser, firebase } = useContext(FirebaseContext);
   const [uploadImage, setUploadImage] = useState("");
@@ -30,44 +67,9 @@ function UserPanel() {
   const usersRef = firebase.db.ref("users");
   const userRef = firebase.auth.currentUser;
 
-  const useStyles = makeStyles(theme => ({
-    form: {
-      marginLeft: "1.5rem"
-    },
-    root: {
-      background: "#FF7043",
-      borderRadius: 3,
-      width: "8rem",
-      boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)"
-    },
-    label: {
-      zIndex: "99",
-      color: "white",
-      marginLeft: "2.5rem"
-    },
-    button: {
-      margin: theme.spacing(1)
-    }
-  }));
-
-  const BorderLinearProgress = withStyles({
-    root: {
-      marginTop: "2px",
-      height: 5,
-      backgroundColor: "#f7f7f7"
-    },
-    bar: {
-      borderRadius: 20,
-      backgroundColor: "#1d428a"
-    }
-  })(LinearProgress);
-
-  const styles = theme => ({
-    margin: {
-      margin: theme.spacing.unit * 2,
-      marginLeft: theme.spacing.unit * 3
-    }
-  });
+  useEffect(() => {
+    setUploadImage("");
+  }, [uploadImage]);
 
   function handleUploadStart() {
     setUploading();
@@ -89,104 +91,78 @@ function UserPanel() {
       .child(filename)
       .getDownloadURL()
       .then(downloadUrl => {
-        // console.log(downloadUrl);
-        // setUploadImage(downloadUrl);
-        // console.log(uploadImage);
         changeAvatar(downloadUrl);
+        setProgress(0);
       })
+
       .catch(error => {
         console.error(error);
       });
-    // console.log(getStorageRef.child(filename));
   }
 
-  // function handleUploadSuccess(filename) {
-  //   const pathToUpload = state.currentChannel.id;
-  //   console.log(pathToUpload);
-
-  //   setProgress(100);
-  //   setUploading();
-  //   storageRef()
-  //     .child(filename)
-  //     .getDownloadURL()
-  //     .then(downloadUrl => {
-  //       sendFileMessage(downloadUrl, getMessagesRef(), pathToUpload);
-  //     })
-  //     .catch(error => {
-  //       console.error(error);
-  //       setErrors(error);
-  //     });
-  //   // console.log(getStorageRef.child(filename));
-  // }
-
-  function changeAvatar(downloadUrl) {
-    console.log(downloadUrl);
-
-    console.log(uploadImage);
-    userRef
-      .updateProfile({
+  async function changeAvatar(downloadUrl) {
+    try {
+      await userRef.updateProfile({
         photoURL: downloadUrl
-      })
-      .then(() => {
-        console.log("Photourl updated");
-      })
-      .catch(err => {
-        console.error(err);
       });
 
-    usersRef
-      .child(currentUser.uid)
-      .update({
-        avatar: downloadUrl
-      })
-      .then(() => {
-        console.log("user avatar updated");
-      })
-      .catch(err => {
-        console.error(err);
-      });
+      updateAvatar(downloadUrl);
+      setUploadImage(downloadUrl);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  console.log(userRef);
-  console.log(progress);
-  console.log(uploadImage);
+  async function updateAvatar(downloadUrl) {
+    try {
+      await usersRef.child(currentUser.uid).update({
+        avatar: downloadUrl
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const classes = useStyles();
   return (
     <>
       <Grid container justify="flex-start" alignItems="center">
         <div>
-          <Badge
-            className={classes.margin}
-            badgeContent={
-              <>
-                <FileUploader
-                  accept="image/*"
-                  name="avatar-image"
-                  id="icon-button-file"
-                  randomizeFilename
-                  storageRef={storageRef}
-                  onUploadStart={handleUploadStart}
-                  onUploadError={handleUploadError}
-                  onUploadSuccess={handleUploadSuccess}
-                  onProgress={handleProgress}
-                  hidden
-                />
-                <label htmlFor="icon-button-file">
-                  <IconButton aria-label="Upload picture" component="span">
-                    <PhotoCameraIcon />
-                  </IconButton>
-                </label>
-              </>
-            }
-          >
-            <Avatar src={userRef.photoURL} className={classes.form} />
-          </Badge>
-          <BorderLinearProgress
-            variant="determinate"
-            color="primary"
-            value={progress}
-            style={{ visibility: progress === 0 ? "hidden" : "visible" }}
-          />
+          <div>
+            <Badge
+              className={classes.margin}
+              badgeContent={
+                <>
+                  <FileUploader
+                    accept="image/*"
+                    name="avatar-image"
+                    id="icon-button-file"
+                    randomizeFilename
+                    storageRef={storageRef}
+                    onUploadStart={handleUploadStart}
+                    onUploadError={handleUploadError}
+                    onUploadSuccess={handleUploadSuccess}
+                    onProgress={handleProgress}
+                    hidden
+                  />
+                  <label htmlFor="icon-button-file">
+                    <IconButton aria-label="Upload picture" component="span">
+                      <PhotoCameraIcon />
+                    </IconButton>
+                  </label>
+                </>
+              }
+            >
+              <Avatar src={currentUser.photoURL} className={classes.avatar} />
+            </Badge>
+            <BorderLinearProgress
+              variant="determinate"
+              color="primary"
+              value={progress}
+              className={classes.avatarLoad}
+              style={{ visibility: progress === 0 ? "hidden" : "visible" }}
+            />
+          </div>
         </div>
         {
           <FormControl style={{ marginLeft: "2rem" }}>
