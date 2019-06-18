@@ -89,7 +89,7 @@ function Channels() {
 
   // useEffect(() => {
   //   setFirstChannel();
-  // }, [channels]);
+  // }, [channels.length]);
 
   // useEffect(() => {
   //   channelListeners();
@@ -257,6 +257,10 @@ function Channels() {
       setActiveChannel(firstChannel.id);
       setChannel(firstChannel);
     }
+    // dispatch({
+    //   type: "SET_CURRENT_CHANNEL",
+    //   payload: firstChannel
+    // });
   }
 
   function changeChannel(channel) {
@@ -273,7 +277,7 @@ function Channels() {
     setChannel(channel);
   }
 
-  console.log(state);
+  // console.log(state);
   // console.log(notifications);
   // // console.log(notifications);
   // console.log(getNotificationCount(channel));

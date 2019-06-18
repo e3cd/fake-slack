@@ -82,8 +82,6 @@ function MessagesHeader({ numUniqueUsers, handleSearchChange }) {
     }
   }
 
-  console.log(state);
-
   return (
     <div>
       <Paper className={classes.root}>

@@ -223,7 +223,7 @@ function MessagesForm() {
           color="primary"
           className={classes.button}
           onClick={sendMessage}
-          disabled={loading}
+          disabled={state.currentChannel.name ? false : true}
         >
           Send
           {/* This Button uses a Font Icon, see the installation instructions in the docs. */}
@@ -250,6 +250,7 @@ function MessagesForm() {
             color="secondary"
             component="span"
             className={classes.button}
+            disabled={state.currentChannel.name ? false : true}
           >
             Upload
             <CloudUploadIcon className={classes.rightIcon} />

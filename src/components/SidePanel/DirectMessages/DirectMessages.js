@@ -42,9 +42,8 @@ function DirectMessages(props) {
     FirebaseContext
   );
   const [users, setUsers] = useState([]);
-
+  const [notifications, setNotifications] = useState([]);
   const [activeChannel, setActiveChannel] = useState("");
-  //   const [channels, setChannels] = useState([]);
   //   const [firstLoad, setFirstLoad] = useState(true);
 
   /**
@@ -63,9 +62,9 @@ function DirectMessages(props) {
    */
 
   useEffect(() => {
-    const listen = addListeners(currentUser.uid);
-    return () => listen;
-  }, [users.length]);
+    addListeners(currentUser.uid);
+    return () => {};
+  }, [users.length, notifications.length]);
 
   // useEffect(() => {
   //   const remove = removeListeners();
@@ -96,8 +95,6 @@ function DirectMessages(props) {
         setUsers(loadedUsers);
       }
     });
-
-    //listen for change in newuser values, create presence ref to track new users online and offline status
     connectedRef.on("value", snap => {
       if (snap.val() === true) {
         const ref = presenceRef.child(currentUserUid);
