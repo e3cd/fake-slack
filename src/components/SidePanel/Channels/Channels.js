@@ -42,7 +42,7 @@ const useStyles = makeStyles(theme => ({
   },
   avatar: {
     color: "#fff",
-    backgroundColor: "#F9A825"
+    backgroundColor: "#00b8d4"
   },
   item: {
     display: "flex",

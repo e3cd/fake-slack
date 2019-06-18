@@ -1,12 +1,8 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import FirebaseContext from "./../../firebase/context";
-
 import { makeStyles } from "@material-ui/core/styles";
 import { Paper, Typography, InputBase, Divider } from "@material-ui/core/";
-import {
-  StarBorder as StarBorderIcon,
-  Search as SearchIcon
-} from "@material-ui/icons";
+import { Star as StarIcon, Search as SearchIcon } from "@material-ui/icons";
 import { fade } from "@material-ui/core/styles/colorManipulator";
 
 const useStyles = makeStyles(theme => ({
@@ -63,17 +59,26 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function MessagesHeader({ numUniqueUsers, handleSearchChange }) {
-  const { state } = useContext(FirebaseContext);
+function MessagesHeader({
+  numUniqueUsers,
+  handleSearchChange,
+  handleStar,
+  channelStarred
+}) {
+  const { state, currentUser, firebase } = useContext(FirebaseContext);
 
-  const classes = useStyles();
+  const usersRef = firebase.db.ref("users");
 
-  //display public and private channels differently
+  useEffect(() => {
+    state.currentChannel.id && starChannel(channelStarred);
+  }, [channelStarred]);
+
   function displayChannelName() {
     return state.isPrivateChannel ? "@" : "#";
   }
 
   function displayUserStatus() {
+    starChannel(channelStarred);
     if (state.directMessagesUsers && state.directMessagesUsers.length) {
       const userChannel = state.directMessagesUsers.filter(
         user => user.name === state.currentChannel.name
@@ -81,6 +86,36 @@ function MessagesHeader({ numUniqueUsers, handleSearchChange }) {
       return userChannel[0].status;
     }
   }
+
+  function starChannel(channelStarred) {
+    if (channelStarred) {
+      usersRef.child(`${currentUser.uid}/starred`).update({
+        [state.currentChannel.id]: {
+          name: state.currentChannel.id,
+          details: state.currentChannel.details,
+          createdBy: {
+            name: state.currentChannel.name,
+            details: state.currentChannel.details,
+            avatar: state.currentChannel.createdBy.avatar
+          }
+        }
+      });
+      console.log("starrred");
+    } else {
+      usersRef
+        .child(`${currentUser.uid}/starred`)
+        .child(state.currentChannel.id)
+        .remove(error => {
+          if (error !== null) {
+            console.error(error);
+          }
+        });
+      console.log("not starred");
+    }
+  }
+
+  console.log(state);
+  const classes = useStyles();
 
   return (
     <div>
@@ -94,7 +129,17 @@ function MessagesHeader({ numUniqueUsers, handleSearchChange }) {
               </span>
             )}
           </Typography>
-          {!state.isPrivateChannel ? <StarBorderIcon /> : ""}
+          {!state.isPrivateChannel && state.currentChannel.id ? (
+            <StarIcon
+              onClick={handleStar}
+              style={{
+                cursor: "pointer",
+                color: channelStarred ? "#fbc02d" : ""
+              }}
+            />
+          ) : (
+            ""
+          )}
           <Divider className={classes.divider} />
           {state.isPrivateChannel ? displayUserStatus() : numUniqueUsers}
         </div>
@@ -103,6 +148,7 @@ function MessagesHeader({ numUniqueUsers, handleSearchChange }) {
             <SearchIcon />
           </div>
           <InputBase
+            disabled={state.currentChannel.id ? false : true}
             onChange={handleSearchChange}
             placeholder="Search…"
             classes={{
