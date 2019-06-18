@@ -172,9 +172,9 @@ function UserPanel() {
             <Select
               input={
                 <OutlinedInput
-                  // style={{ width: "10rem", color: "#eee" }}
                   className={classes.root}
                   name="age"
+                  id="outlined-age-simple"
                 />
               }
             >
