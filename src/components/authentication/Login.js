@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import validateLogin from "./validateLogin";
+import validateLogin from "./validation/validateLogin";
 import useFormValidation from "./../hooks/useFormValidation";
 import {
   Avatar,
@@ -26,13 +26,11 @@ const INITIAL_STATE = {
 };
 
 function Login(props) {
-  const {
-    values,
-    errors,
-
-    handleSubmit,
-    handleChange
-  } = useFormValidation(INITIAL_STATE, validateLogin, authenticateUser);
+  const { values, errors, handleSubmit, handleChange } = useFormValidation(
+    INITIAL_STATE,
+    validateLogin,
+    authenticateUser
+  );
   const [submitting, setSubmitting] = useState(false);
   const [firebaseError, setFirebaseError] = useState(null);
 

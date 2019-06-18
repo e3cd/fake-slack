@@ -1,18 +1,25 @@
 import React, { useState, useContext, useEffect } from "react";
 import FirebaseContext from "./../../firebase/context";
 import useInputState from "./../hooks/useInputState";
+import useToggle from "./../hooks/useToggle";
+import FileUploader from "react-firebase-file-uploader";
 
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
+
 import {
-  Send as SendIcon,
-  CloudUpload as CloudUploadIcon
-} from "@material-ui/icons";
+  Paper,
+  InputBase,
+  Divider,
+  IconButton,
+  Icon,
+  Button,
+  LinearProgress
+} from "@material-ui/core";
+import { CloudUpload as CloudUploadIcon } from "@material-ui/icons";
 
-import { Paper, InputBase, Divider, IconButton } from "@material-ui/core";
-
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: "2rem",
+    marginTop: "1rem",
     padding: "2px 4px",
     display: "flex",
     alignItems: "center",
@@ -25,43 +32,78 @@ const useStyles = makeStyles({
   iconButton: {
     padding: 10
   },
+  button: {
+    margin: theme.spacing(1)
+  },
+  rightIcon: {
+    marginLeft: theme.spacing(1)
+  },
   divider: {
     width: 1,
     height: 28,
     margin: 4
+  },
+  fileInput: {
+    display: "none"
   }
-});
+}));
+
+const BorderLinearProgress = withStyles({
+  root: {
+    marginTop: "2px",
+    height: 5,
+    backgroundColor: "#f7f7f7"
+  },
+  bar: {
+    borderRadius: 20,
+    backgroundColor: "#1d428a"
+  }
+})(LinearProgress);
 
 function MessagesForm() {
-  const { user, state, firebase } = useContext(FirebaseContext);
+  const { currentUser, state, firebase } = useContext(FirebaseContext);
 
   const [message, updateMessage, resetMessage] = useInputState("");
+  //   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
+  const [uploading, setUploading] = useToggle(false);
+  const [progress, setProgress] = useState(0);
 
+  /**
+   *
+   *  Firebase Constants
+   *
+   */
   const privateMessagesRef = firebase.db.ref("privateMessages");
   const messagesRef = firebase.db.ref("messages");
   const typingRef = firebase.db.ref("typing");
+  const publicStorageRef = firebase.storage.ref("chat/public");
+  const privateStorageRef = firebase.storage.ref(
+    `chat/private/${state.currentChannel.id}`
+  );
 
-  const classes = useStyles();
+  /**
+   *
+   * Functions
+   *
+   */
 
   function handleKeyDown(event) {
     //ctrl and enter button are pressed
     if (event.keyCode === 13) {
       sendMessage();
-
-      console.log("pressed");
     }
 
     if (message) {
       typingRef
         .child(state.currentChannel.id)
-        .child(user.uid)
-        .set(user.displayName);
+        .child(currentUser.uid)
+        .set(currentUser.displayName);
     } else {
       typingRef
         .child(state.currentChannel.id)
-        .child(user.uid)
+        .child(currentUser.uid)
         .remove();
     }
   }
@@ -70,13 +112,17 @@ function MessagesForm() {
     return state.isPrivateChannel ? privateMessagesRef : messagesRef;
   }
 
+  function getStorageRef() {
+    return state.isPrivateChannel ? privateStorageRef : publicStorageRef;
+  }
+
   function createMessage(fileUrl = null) {
     const sentMessage = {
       timestamp: firebase.database.ServerValue.TIMESTAMP,
       user: {
-        id: user.uid,
-        name: user.displayName,
-        avatar: user.photoURL
+        id: currentUser.uid,
+        name: currentUser.displayName,
+        avatar: currentUser.photoURL
       }
     };
     if (fileUrl !== null) {
@@ -84,8 +130,53 @@ function MessagesForm() {
     } else {
       sentMessage["content"] = message;
     }
-    console.log(message);
     return sentMessage;
+  }
+
+  function handleUploadStart() {
+    setUploading();
+    setProgress(0);
+  }
+
+  function handleUploadError(error) {
+    setUploading(false);
+    console.error(error);
+  }
+
+  function handleProgress(progress) {
+    setProgress(progress);
+  }
+
+  function handleUploadSuccess(filename) {
+    const pathToUpload = state.currentChannel.id;
+    console.log(pathToUpload);
+
+    setProgress(100);
+    setUploading();
+    getStorageRef()
+      .child(filename)
+      .getDownloadURL()
+      .then(downloadUrl => {
+        sendFileMessage(downloadUrl, getMessagesRef(), pathToUpload);
+      })
+      .catch(error => {
+        console.error(error);
+        setErrors(error);
+      });
+    // console.log(getStorageRef.child(filename));
+  }
+
+  function sendFileMessage(downloadUrl, messagesRef, pathToUpload) {
+    console.log(pathToUpload);
+    messagesRef
+      .child(pathToUpload)
+      .push()
+      .set(createMessage(downloadUrl))
+      .then(setProgress(0))
+      .catch(error => {
+        console.error(error);
+        setErrors(error);
+      });
   }
 
   async function sendMessage() {
@@ -97,14 +188,13 @@ function MessagesForm() {
           .push()
           .set(createMessage())
           .then(() => {
-            console.log("message sent");
             setLoading(false);
             resetMessage();
             setErrors([]);
           });
         typingRef
           .child(state.currentChannel.id)
-          .child(user.uid)
+          .child(currentUser.uid)
           .remove();
       } catch (error) {
         console.error(error);
@@ -116,37 +206,64 @@ function MessagesForm() {
     }
   }
 
-  //   console.log(message);
-
+  const classes = useStyles();
   return (
-    <Paper className={classes.root}>
-      <InputBase
-        onKeyDown={handleKeyDown}
-        value={message}
-        onChange={updateMessage}
-        className={classes.input}
-        placeholder="Message..."
-        inputProps={{ "aria-label": "Message..." }}
-      />
-      <IconButton
+    <div>
+      <Paper className={classes.root}>
+        <InputBase
+          onKeyDown={handleKeyDown}
+          value={message}
+          onChange={updateMessage}
+          className={classes.input}
+          placeholder="Message..."
+          inputProps={{ "aria-label": "Message..." }}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          className={classes.button}
+          onClick={sendMessage}
+          disabled={state.currentChannel.name ? false : true}
+        >
+          Send
+          {/* This Button uses a Font Icon, see the installation instructions in the docs. */}
+          <Icon className={classes.rightIcon}>send</Icon>
+        </Button>
+
+        <Divider className={classes.divider} />
+
+        <FileUploader
+          accept="image/*"
+          id="contained-button-file"
+          name="image"
+          randomizeFilename
+          storageRef={getStorageRef()}
+          onUploadStart={handleUploadStart}
+          onUploadError={handleUploadError}
+          onUploadSuccess={handleUploadSuccess}
+          onProgress={handleProgress}
+          style={{ display: "none" }}
+        />
+        <label htmlFor="contained-button-file">
+          <Button
+            variant="contained"
+            color="secondary"
+            component="span"
+            className={classes.button}
+            disabled={state.currentChannel.name ? false : true}
+          >
+            Upload
+            <CloudUploadIcon className={classes.rightIcon} />
+          </Button>
+        </label>
+      </Paper>
+      <BorderLinearProgress
+        variant="determinate"
         color="primary"
-        className={classes.iconButton}
-        aria-label="Search"
-        onClick={sendMessage}
-        disabled={loading}
-      >
-        <SendIcon />
-      </IconButton>
-      <Divider className={classes.divider} />
-      <IconButton
-        color="secondary"
-        className={classes.iconButton}
-        aria-label="Directions"
-        disabled={loading}
-      >
-        <CloudUploadIcon />
-      </IconButton>
-    </Paper>
+        value={progress}
+        style={{ visibility: progress === 0 ? "hidden" : "visible" }}
+      />
+    </div>
   );
 }
 

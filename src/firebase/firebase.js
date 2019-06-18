@@ -15,6 +15,7 @@ class Firebase {
     this.db = app.database();
     this.storage = app.storage();
     this.database = app.database;
+    // this.storage = app.storage;
   }
 
   async register(username, email, password) {

@@ -21,7 +21,7 @@ body {
 
   background-repeat: no-repeat;
   min-height: 100vh;
-  /* overflow: hidden; */
+  overflow: "auto";
 }
 
 /* Form */
@@ -78,6 +78,12 @@ body {
 .message__self {
   border-left: 4px solid rgb(32, 19, 226);
   padding-left: 8px;
+}
+
+.message__image {
+  padding: 1em;
+  height: 100%;
+  width: 100%;
 }
 
 /* .userpanel {

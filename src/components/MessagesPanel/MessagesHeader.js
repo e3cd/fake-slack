@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import FirebaseContext from "./../../firebase/context";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { Paper, Typography, InputBase } from "@material-ui/core/";
+import { Paper, Typography, InputBase, Divider } from "@material-ui/core/";
 import {
   StarBorder as StarBorderIcon,
   Search as SearchIcon
@@ -12,17 +12,19 @@ import { fade } from "@material-ui/core/styles/colorManipulator";
 const useStyles = makeStyles(theme => ({
   root: {
     display: "flex",
+    justifyContent: "space-between",
     flexGrow: "1",
-    alignItems: "center",
     margin: "0 0 2rem 0",
     padding: theme.spacing(3, 2)
   },
   search: {
     position: "relative",
+    display: "flex",
+    flexDirection: "flex-end",
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
+    backgroundColor: fade("#EEEEEE", 0.8),
     "&:hover": {
-      backgroundColor: fade(theme.palette.common.white, 0.25)
+      backgroundColor: fade("#BDBDBD", 0.25)
     },
     marginLeft: 0,
     width: "100%",
@@ -53,31 +55,55 @@ const useStyles = makeStyles(theme => ({
         width: 200
       }
     }
+  },
+  divider: {
+    width: 2,
+    height: 28,
+    margin: 16
   }
 }));
 
-function MessagesHeader() {
-  const { state, dispatch } = useContext(FirebaseContext);
+function MessagesHeader({ numUniqueUsers, handleSearchChange }) {
+  const { state } = useContext(FirebaseContext);
 
   const classes = useStyles();
 
-  //   console.log(state.currentChannel);
+  //display public and private channels differently
+  function displayChannelName() {
+    return state.isPrivateChannel ? "@" : "#";
+  }
+
+  function displayUserStatus() {
+    if (state.directMessagesUsers && state.directMessagesUsers.length) {
+      const userChannel = state.directMessagesUsers.filter(
+        user => user.name === state.currentChannel.name
+      );
+      return userChannel[0].status;
+    }
+  }
+
   return (
     <div>
       <Paper className={classes.root}>
         <div style={{ display: "flex", alignItems: "center" }}>
           <Typography variant="h5" component="h3">
             {state.currentChannel.name && (
-              <span>@{state.currentChannel.name}</span>
+              <span>
+                {displayChannelName()}
+                {state.currentChannel.name}
+              </span>
             )}
           </Typography>
-          <StarBorderIcon />
+          {!state.isPrivateChannel ? <StarBorderIcon /> : ""}
+          <Divider className={classes.divider} />
+          {state.isPrivateChannel ? displayUserStatus() : numUniqueUsers}
         </div>
         <div className={classes.search}>
           <div className={classes.searchIcon}>
             <SearchIcon />
           </div>
           <InputBase
+            onChange={handleSearchChange}
             placeholder="Search…"
             classes={{
               root: classes.inputRoot,

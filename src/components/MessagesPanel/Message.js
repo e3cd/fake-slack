@@ -8,27 +8,30 @@ import {
   Typography,
   Avatar,
   makeStyles,
+  CardMedia,
   Paper
 } from "@material-ui/core";
+import { Image } from "semantic-ui-react";
 import moment from "moment";
+// import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 
 const isOwnMessage = (message, user) => {
   return message.user.id === user.uid ? "message__self" : "";
 };
 
+const timeFromNow = timestamp => moment(timestamp).fromNow();
+
 const isImage = message => {
   return message.hasOwnProperty("image") && !message.hasOwnProperty("content");
 };
-
-const timeFromNow = timestamp => moment(timestamp).fromNow();
 
 const useStyles = makeStyles(theme => ({
   root: {
     width: "100%",
 
     backgroundColor: theme.palette.background.paper,
-    overflow: "auto",
-    maxHeight: 300
+    overflow: "hidden",
+    maxHeight: "100%"
   },
   inline: {
     display: "inline"
@@ -38,23 +41,42 @@ const useStyles = makeStyles(theme => ({
 function Message({ message }) {
   const classes = useStyles();
 
-  const { user } = useContext(FirebaseContext);
+  const { currentUser } = useContext(FirebaseContext);
 
   return (
     <List className={classes.root}>
-      <ListItem alignItems="flex-start">
+      <ListItem className={classes.item} alignItems="flex-start">
         <ListItemAvatar>
           <Avatar src={message.user.avatar} />
         </ListItemAvatar>
-        <ListItemText
-          className={isOwnMessage(message, user)}
-          primary={
-            <>
+        {isImage(message) ? (
+          <div
+            className={isOwnMessage(message, currentUser)}
+            style={{ display: "flex", flexDirection: "column" }}
+          >
+            <Typography>
               {message.user.name} - {timeFromNow(message.timestamp)}
-            </>
-          }
-          secondary={<>{message.content}</>}
-        />
+            </Typography>
+            <Image
+              src={message.image}
+              style={{ maxHeight: "100%", maxWidth: "100%" }}
+            />
+          </div>
+        ) : (
+          <ListItemText
+            className={isOwnMessage(message, currentUser)}
+            primary={
+              <>
+                {message.user.name} - {timeFromNow(message.timestamp)}
+              </>
+            }
+            secondary={
+              <>
+                <Typography>{message.content}</Typography>
+              </>
+            }
+          />
+        )}
       </ListItem>
     </List>
   );
