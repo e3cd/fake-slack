@@ -8,7 +8,7 @@ import {
   List,
   ListItem,
   makeStyles,
-  ListItemText
+  Typography
 } from "@material-ui/core";
 import {
   Forum as ForumIcon,
@@ -65,18 +65,6 @@ function DirectMessages(props) {
     addListeners(currentUser.uid);
     return () => {};
   }, [users.length, notifications.length]);
-
-  // useEffect(() => {
-  //   const remove = removeListeners();
-  //   return () => remove;
-  // }, []);
-
-  function removeListeners() {
-    usersRef.off();
-    presenceRef.off();
-
-    connectedRef.off();
-  }
 
   function addListeners(currentUserUid) {
     let loadedUsers = [];
@@ -205,12 +193,10 @@ function DirectMessages(props) {
                   <ForumIcon />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary="DIRECT MESSAGES" /> (
-              <ListItemText
-                style={{ textAlign: "center" }}
-                primary={users.length}
-              />
-              )
+              <Typography>DIRECT MESSAGES</Typography>
+              <Typography style={{ marginLeft: "0.5rem" }}>
+                ({users.length})
+              </Typography>
             </ListItem>
             {displayUsers(users)}
           </List>

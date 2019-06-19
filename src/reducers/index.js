@@ -3,7 +3,8 @@ import {
   SET_PRIVATE_CHANNEL,
   SET_USER_POSTS,
   SET_DIRECT_MESSAGES_USERS,
-  SET_CHANNEL_MESSAGES
+  SET_CHANNEL_MESSAGES,
+  SET_STARRED_CHANNEL
 } from "./../actions/types";
 
 export default function reducer(state, action) {
@@ -23,13 +24,14 @@ export default function reducer(state, action) {
     case SET_USER_POSTS:
       return {
         ...state,
-        userPosts: action.payload.userPosts
+        userPosts: action.payload
       };
     case SET_CHANNEL_MESSAGES:
       return {
         ...state,
         channelMessages: action.payload
       };
+
     default:
       return state;
   }

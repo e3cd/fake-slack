@@ -5,7 +5,6 @@ import { Paper } from "@material-ui/core";
 import MessagesHeader from "./MessagesHeader";
 import MessagesForm from "./MessagesForm";
 import Message from "./Message";
-import { dispatch } from "rxjs/internal/observable/range";
 
 function MessagesPanel() {
   const { state, currentUser, firebase, dispatch } = useContext(
@@ -16,22 +15,29 @@ function MessagesPanel() {
   const [listeners, setListeners] = useState([]);
   const [numUniqueUsers, setNumUniqueUsers] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchLoading, setSearchLoading] = useToggle(false);
+  const [searchLoading, setSearchLoading] = useToggle();
   const [searchResults, setSearchResults] = useState("");
+  const [channelStarred, setChannelStarred] = useState(false);
+
+  /**
+   *
+   * Firebase Constants
+   *
+   */
 
   const privateMessagesRef = firebase.db.ref("privateMessages");
   const messagesRef = firebase.db.ref("messages");
-  const typingRef = firebase.db.ref("typing");
+  const usersRef = firebase.db.ref("users");
 
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     setNumUniqueUsers("");
     setMessages([]);
-
     if (state.currentChannel.id && currentUser) {
       removeListeners(listeners);
       addListeners(state.currentChannel.id);
+      addUsersStarsListener(state.currentChannel.id, currentUser.uid);
     }
   }, [state.currentChannel.id]);
 
@@ -71,6 +77,20 @@ function MessagesPanel() {
       const newListener = { id, ref, event };
       setListeners([...listeners, newListener]);
     }
+  }
+
+  function addUsersStarsListener(channelId, userId) {
+    usersRef
+      .child(userId)
+      .child("starred")
+      .once("value")
+      .then(data => {
+        if (data.val() !== null) {
+          const channelIds = Object.keys(data.val());
+          const prevStarred = channelIds.includes(channelId);
+          setChannelStarred(prevStarred);
+        }
+      });
   }
 
   function removeListeners(listeners) {
@@ -113,14 +133,23 @@ function MessagesPanel() {
     setNumUniqueUsers(numUniqueUsers);
   }
 
-  function countUserPosts(messages) {}
-
-  // function displayMessages(messages) {
-  //   messages.length > 0 &&
-  //     messages.map(message => (
-  //       <Message key={message.timestamp} message={message} />
-  //     ));
-  // }
+  function countUserPosts(messages) {
+    let userPosts = messages.reduce((acc, message) => {
+      if (message.user.name in acc) {
+        acc[message.user.name].count += 1;
+      } else {
+        acc[message.user.name] = {
+          avatar: message.user.avatar,
+          count: 1
+        };
+      }
+      return acc;
+    }, {});
+    dispatch({
+      type: "SET_USER_POSTS",
+      payload: userPosts
+    });
+  }
 
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
@@ -143,6 +172,10 @@ function MessagesPanel() {
     setTimeout(() => setSearchLoading(), 1000);
   }
 
+  function handleStar() {
+    setChannelStarred(channelStarred === false ? true : false);
+  }
+
   const displayMessages = messages =>
     messages.length > 0 &&
     messages.map(message => {
@@ -155,6 +188,8 @@ function MessagesPanel() {
       <MessagesHeader
         numUniqueUsers={numUniqueUsers}
         handleSearchChange={handleSearchChange}
+        handleStar={handleStar}
+        channelStarred={channelStarred}
       />
       <Paper className="messages__panel">
         {searchTerm

@@ -215,6 +215,7 @@ function MessagesForm() {
           value={message}
           onChange={updateMessage}
           className={classes.input}
+          disabled={state.currentChannel.name ? false : true}
           placeholder="Message..."
           inputProps={{ "aria-label": "Message..." }}
         />
@@ -243,6 +244,7 @@ function MessagesForm() {
           onUploadSuccess={handleUploadSuccess}
           onProgress={handleProgress}
           style={{ display: "none" }}
+          disabled={state.currentChannel.name ? false : true}
         />
         <label htmlFor="contained-button-file">
           <Button
