@@ -7,13 +7,10 @@ import {
   ListItemAvatar,
   Typography,
   Avatar,
-  makeStyles,
-  CardMedia,
-  Paper
+  makeStyles
 } from "@material-ui/core";
 import { Image } from "semantic-ui-react";
 import moment from "moment";
-// import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 
 const isOwnMessage = (message, user) => {
   return message.user.id === user.uid ? "message__self" : "";
@@ -66,14 +63,14 @@ function Message({ message }) {
           <ListItemText
             className={isOwnMessage(message, currentUser)}
             primary={
-              <>
+              <div>
                 {message.user.name} - {timeFromNow(message.timestamp)}
-              </>
+              </div>
             }
             secondary={
-              <>
+              <div>
                 <Typography>{message.content}</Typography>
-              </>
+              </div>
             }
           />
         )}

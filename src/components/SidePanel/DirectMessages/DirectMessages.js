@@ -8,7 +8,6 @@ import {
   List,
   ListItem,
   makeStyles,
-  ListItemText,
   Typography
 } from "@material-ui/core";
 import {
@@ -66,18 +65,6 @@ function DirectMessages(props) {
     addListeners(currentUser.uid);
     return () => {};
   }, [users.length, notifications.length]);
-
-  // useEffect(() => {
-  //   const remove = removeListeners();
-  //   return () => remove;
-  // }, []);
-
-  function removeListeners() {
-    usersRef.off();
-    presenceRef.off();
-
-    connectedRef.off();
-  }
 
   function addListeners(currentUserUid) {
     let loadedUsers = [];

@@ -7,7 +7,6 @@ import {
   List,
   ListItem,
   makeStyles,
-  ListItemText,
   Typography
 } from "@material-ui/core";
 import { StarRate as StarRateIcon } from "@material-ui/icons";
@@ -47,7 +46,6 @@ function Starred() {
     if (currentUser) {
       addListeners(currentUser.uid);
     }
-    console.log(starredChannels);
   }, []);
 
   function addListeners(userId) {
@@ -56,7 +54,6 @@ function Starred() {
       .child("starred")
       .on("child_added", snap => {
         const starredChannel = { id: snap.key, ...snap.val() };
-        console.log(starredChannels);
         setStarredChannels(prevStarredChannels => [
           ...prevStarredChannels,
           starredChannel
@@ -110,7 +107,6 @@ function Starred() {
 
   const classes = useStyles();
 
-  console.log(starredChannels);
   return (
     <>
       <Grid item xs={12}>

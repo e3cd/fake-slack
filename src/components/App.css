@@ -63,7 +63,7 @@ body {
   margin-left: 320px;
   margin-top: 1rem;
   display: grid;
-  grid-template-columns: minmax(400px, 3fr) minmax(200px, 1fr);
+  grid-template-columns: minmax(400px, 3fr) minmax(300px, 1fr);
   grid-gap: 1rem;
 }
 

@@ -11,7 +11,6 @@ import {
   ListItem,
   makeStyles,
   IconButton,
-  ListItemText,
   ListItemSecondaryAction,
   Dialog,
   DialogTitle,
@@ -22,12 +21,8 @@ import {
   Badge,
   Typography
 } from "@material-ui/core";
-// import { deepBlue } from "@material-ui/core/colors";
-import {
-  List as ListIcon,
-  Add as AddIcon,
-  ListItem as ListItemIcon
-} from "@material-ui/icons";
+
+import { List as ListIcon, Add as AddIcon } from "@material-ui/icons";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -88,18 +83,6 @@ function Channels() {
     return () => {};
   }, [channels.length, notifications.length]);
 
-  // useEffect(() => {
-  //   setFirstChannel();
-  // }, [channels.length]);
-
-  // useEffect(() => {
-  //   channelListeners();
-  // }, [channels.length]);
-
-  // useEffect(() => {
-  //   channelListeners();
-  // }, [notifications.length]);
-
   function channelListeners() {
     let loadedChannels = [];
     channelsRef.on("child_added", snap => {
@@ -135,7 +118,7 @@ function Channels() {
     snap
   ) {
     let lastTotal = 0;
-    //use findindex to iterate over the notifications state, find notification id that matches with channel id
+    // iterate over the notifications state, find notification id that matches with channel id
     let index = notifications.findIndex(
       notification => notification.id === channelId
     );
@@ -146,7 +129,7 @@ function Channels() {
       if (channelId !== currentChannelId) {
         lastTotal = notifications[index].total;
 
-        //most recent number of notifications, if there is a new message/multiple messages added ,update count with snap.numchildren() - lastTOtal
+        //most recent number of notifications, if there is a new message/multiple messages added ,update count with snap.numchildren() - lastTotal
 
         if (snap.numChildren() - lastTotal > 0) {
           notifications[index].count = snap.numChildren() - lastTotal;
@@ -200,6 +183,7 @@ function Channels() {
 
   async function addChannel() {
     // generate unique id through push method which generates key for unique id for each channel
+
     const key = channelsRef.push().key;
 
     // create new channel field
@@ -258,10 +242,6 @@ function Channels() {
       setActiveChannel(firstChannel.id);
       setChannel(firstChannel);
     }
-    // dispatch({
-    //   type: "SET_CURRENT_CHANNEL",
-    //   payload: firstChannel
-    // });
   }
 
   function changeChannel(channel) {
@@ -278,10 +258,6 @@ function Channels() {
     setChannel(channel);
   }
 
-  // console.log(state);
-  // console.log(notifications);
-  // // console.log(notifications);
-  // console.log(getNotificationCount(channel));
   return (
     <>
       <Grid item xs={12}>
@@ -323,7 +299,6 @@ function Channels() {
               <TextField
                 autoFocus
                 margin="dense"
-                z
                 id="name"
                 label="Name of Channel"
                 type="text"

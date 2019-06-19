@@ -244,6 +244,7 @@ function MessagesForm() {
           onUploadSuccess={handleUploadSuccess}
           onProgress={handleProgress}
           style={{ display: "none" }}
+          disabled={state.currentChannel.name ? false : true}
         />
         <label htmlFor="contained-button-file">
           <Button

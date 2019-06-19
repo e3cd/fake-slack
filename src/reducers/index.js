@@ -24,7 +24,7 @@ export default function reducer(state, action) {
     case SET_USER_POSTS:
       return {
         ...state,
-        userPosts: action.payload.userPosts
+        userPosts: action.payload
       };
     case SET_CHANNEL_MESSAGES:
       return {

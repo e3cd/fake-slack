@@ -27,7 +27,6 @@ function MessagesPanel() {
 
   const privateMessagesRef = firebase.db.ref("privateMessages");
   const messagesRef = firebase.db.ref("messages");
-  const typingRef = firebase.db.ref("typing");
   const usersRef = firebase.db.ref("users");
 
   const messagesEndRef = useRef(null);
@@ -134,14 +133,23 @@ function MessagesPanel() {
     setNumUniqueUsers(numUniqueUsers);
   }
 
-  function countUserPosts(messages) {}
-
-  // function displayMessages(messages) {
-  //   messages.length > 0 &&
-  //     messages.map(message => (
-  //       <Message key={message.timestamp} message={message} />
-  //     ));
-  // }
+  function countUserPosts(messages) {
+    let userPosts = messages.reduce((acc, message) => {
+      if (message.user.name in acc) {
+        acc[message.user.name].count += 1;
+      } else {
+        acc[message.user.name] = {
+          avatar: message.user.avatar,
+          count: 1
+        };
+      }
+      return acc;
+    }, {});
+    dispatch({
+      type: "SET_USER_POSTS",
+      payload: userPosts
+    });
+  }
 
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
@@ -175,7 +183,6 @@ function MessagesPanel() {
       return <Message key={message.timestamp} message={message} />;
     });
 
-  // console.log(channelStarred);
   return (
     <div>
       <MessagesHeader

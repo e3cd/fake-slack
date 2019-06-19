@@ -170,6 +170,7 @@ function UserPanel() {
               {currentUser.displayName}
             </InputLabel>
             <Select
+              value=""
               input={
                 <OutlinedInput
                   className={classes.root}
