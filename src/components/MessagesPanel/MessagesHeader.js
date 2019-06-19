@@ -91,7 +91,7 @@ function MessagesHeader({
     if (channelStarred) {
       usersRef.child(`${currentUser.uid}/starred`).update({
         [state.currentChannel.id]: {
-          name: state.currentChannel.id,
+          name: state.currentChannel.name,
           details: state.currentChannel.details,
           createdBy: {
             name: state.currentChannel.name,
@@ -114,7 +114,7 @@ function MessagesHeader({
     }
   }
 
-  console.log(state);
+  // console.log(state);
   const classes = useStyles();
 
   return (

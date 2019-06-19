@@ -7,7 +7,8 @@ import {
   List,
   ListItem,
   makeStyles,
-  ListItemText
+  ListItemText,
+  Typography
 } from "@material-ui/core";
 import { StarRate as StarRateIcon } from "@material-ui/icons";
 
@@ -34,9 +35,46 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Starred() {
-  const { state, dispatch } = useContext(FirebaseContext);
-  const [starredChannel, setStarredChannel] = useState([]);
+  const { state, dispatch, firebase, currentUser } = useContext(
+    FirebaseContext
+  );
+  const [starredChannels, setStarredChannels] = useState([]);
   const [activeChannel, setActiveChannel] = useState("");
+
+  const usersRef = firebase.db.ref("users");
+
+  useEffect(() => {
+    if (currentUser) {
+      addListeners(currentUser.uid);
+    }
+    console.log(starredChannels);
+  }, []);
+
+  function addListeners(userId) {
+    usersRef
+      .child(userId)
+      .child("starred")
+      .on("child_added", snap => {
+        const starredChannel = { id: snap.key, ...snap.val() };
+        console.log(starredChannels);
+        setStarredChannels(prevStarredChannels => [
+          ...prevStarredChannels,
+          starredChannel
+        ]);
+      });
+
+    usersRef
+      .child(userId)
+      .child("starred")
+      .on("child_removed", snap => {
+        const channelToRemove = { id: snap.key, ...snap.val() };
+        setStarredChannels(prevStarredChannels =>
+          prevStarredChannels.filter(channel => {
+            return channel.id !== channelToRemove.id;
+          })
+        );
+      });
+  }
 
   function displayChannels(starredChannels) {
     return (
@@ -50,7 +88,7 @@ function Starred() {
             selected={channel.id === state.currentChannel.id ? true : false}
             className={classes.item}
           >
-            #{starredChannel.name}
+            #{channel.name}
           </ListItem>
         </List>
       ))
@@ -58,7 +96,7 @@ function Starred() {
   }
 
   function changeChannel(channel) {
-    setActiveChannel(channel.id);
+    setActiveChannel(channel.name);
 
     dispatch({
       type: "SET_PRIVATE_CHANNEL",
@@ -71,6 +109,8 @@ function Starred() {
   }
 
   const classes = useStyles();
+
+  console.log(starredChannels);
   return (
     <>
       <Grid item xs={12}>
@@ -82,9 +122,12 @@ function Starred() {
                   <StarRateIcon />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary="STARRED" /> (
-              <ListItemText style={{ textAlign: "center" }} primary={4} />)
+              <Typography>STARRED </Typography>
+              <Typography style={{ marginLeft: "0.5rem" }}>
+                ({starredChannels.length})
+              </Typography>
             </ListItem>
+            {displayChannels(starredChannels)}
           </List>
         </div>
       </Grid>

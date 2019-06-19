@@ -215,6 +215,7 @@ function MessagesForm() {
           value={message}
           onChange={updateMessage}
           className={classes.input}
+          disabled={state.currentChannel.name ? false : true}
           placeholder="Message..."
           inputProps={{ "aria-label": "Message..." }}
         />

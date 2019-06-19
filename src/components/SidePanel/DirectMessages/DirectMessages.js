@@ -8,7 +8,8 @@ import {
   List,
   ListItem,
   makeStyles,
-  ListItemText
+  ListItemText,
+  Typography
 } from "@material-ui/core";
 import {
   Forum as ForumIcon,
@@ -205,12 +206,10 @@ function DirectMessages(props) {
                   <ForumIcon />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary="DIRECT MESSAGES" /> (
-              <ListItemText
-                style={{ textAlign: "center" }}
-                primary={users.length}
-              />
-              )
+              <Typography>DIRECT MESSAGES</Typography>
+              <Typography style={{ marginLeft: "0.5rem" }}>
+                ({users.length})
+              </Typography>
             </ListItem>
             {displayUsers(users)}
           </List>

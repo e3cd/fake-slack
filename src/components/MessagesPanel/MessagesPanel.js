@@ -175,7 +175,7 @@ function MessagesPanel() {
       return <Message key={message.timestamp} message={message} />;
     });
 
-  console.log(channelStarred);
+  // console.log(channelStarred);
   return (
     <div>
       <MessagesHeader

@@ -19,7 +19,8 @@ import {
   TextField,
   DialogActions,
   Button,
-  Badge
+  Badge,
+  Typography
 } from "@material-ui/core";
 // import { deepBlue } from "@material-ui/core/colors";
 import {
@@ -292,12 +293,10 @@ function Channels() {
                   <ListIcon />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary="CHANNELS" />(
-              <ListItemText
-                style={{ textAlign: "center" }}
-                primary={channels.length}
-              />
-              )
+              <Typography>CHANNELS</Typography>
+              <Typography style={{ marginLeft: "0.5rem" }}>
+                ({channels.length})
+              </Typography>
               <ListItemSecondaryAction onClick={handleClickOpen}>
                 <IconButton
                   edge="end"

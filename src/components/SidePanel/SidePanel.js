@@ -10,7 +10,7 @@ import Starred from "./Starred/Starred";
 import "./../App.css";
 
 const styles = theme => ({
-  paper: { background: "rgb(4, 155, 229)" }
+  paper: { background: "rgb(4, 155, 229)", borderRight: "none" }
 });
 
 const useStyles = makeStyles(theme => ({
