@@ -1,0 +1,91 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+body {
+  box-sizing: border-box;
+  padding: none;
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  line-height: 1.6;
+  background-size: cover;
+  background: rgb(247, 247, 247);
+
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  overflow: "auto";
+}
+
+/* Form */
+
+.form__container {
+  margin-top: 8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.forgot__container {
+  margin-top: 8rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form__body {
+  margin-top: 2rem;
+  display: "flex";
+  flex-direction: "column";
+  align-items: "center";
+}
+
+.form__register-avatar {
+  margin: 1rem 1rem;
+  background-color: #17c6cc;
+  height: 2rem;
+  width: 2rem;
+}
+
+.form__button {
+  margin-top: 4rem;
+}
+
+/* Home Container */
+
+.home__container {
+  margin-left: 320px;
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: minmax(400px, 3fr) minmax(300px, 1fr);
+  grid-gap: 1rem;
+}
+
+/* Messages Panel */
+
+.messages__panel {
+  width: 100%;
+  height: 70vh;
+  overflow: auto;
+}
+
+.message__self {
+  border-left: 4px solid rgb(32, 19, 226);
+  padding-left: 8px;
+}
+
+.message__image {
+  padding: 1em;
+  height: 100%;
+  width: 100%;
+}
+
+/* .userpanel {
+  margin-right: 2rem;
+} */
